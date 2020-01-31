@@ -45,7 +45,9 @@ namespace ConsolePoker
         public int bet = 0;
         public async Task<int> DoBet(int minBet)
         {
-            int nb = Int32.Parse(Console.ReadLine());
+
+            //int nb = Int32.Parse(Console.ReadLine());
+            int nb = 100;
             if (nb == -1)
                 bet = -1;
             else if (nb < minBet)
@@ -94,7 +96,7 @@ namespace ConsolePoker
             tokenSource = new CancellationTokenSource();
             cancellation = tokenSource.Token;
             players = new List<Player>();
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 2; i++)
                 players.Add(new Player());
         }
         private void PrintState()
@@ -335,24 +337,50 @@ namespace ConsolePoker
 
             return res;
         }
+        private string IntCombToStr(int comb)
+        {
+            int tier = comb / 100000000;
+            switch(tier)
+            {
+                case 0:
+                    return "Higher card of " + ((comb % 100000000) / 100).ToString();
+                case 1:
+                    return "Pair of " + ((comb % 100000000) / 1000000).ToString();
+                case 2:
+                    return "Two pair (cards are " + ((comb % 100000000) / 1000000).ToString() + " and " + ((comb % 1000000) / 10000).ToString() + ")";
+                case 3:
+                    return "Triple (higher card is " + ((comb % 1000000) / 10000).ToString() + ")";
+                case 4:
+                    return "Street (higher card is " + ((comb % 100000000) ).ToString() + ")";
+                case 5:
+                    return "Flash (higher card is " + ((comb % 100000000) ).ToString() + ")";
+                case 6:
+                    return "Fullhouse (triple card is " + ((comb % 100000000)/100).ToString() + " and pair card is " + (comb % 20).ToString() + ")";
+                case 7:
+                    return "Kare (card is " + ((comb % 100000000)/100).ToString() + ")";
+                case 8:
+                    return "Street Flash (higher card is " + ((comb % 100000000) ).ToString() + ")";
+                case 9:
+                    return "Flash Royale";
+            }
+            return "";
+        }
         private void FindWinner(int cash)
         {
-            Dictionary<Player, (int, int, int)> playerStats = new Dictionary<Player, (int, int, int)>();
+            Dictionary<Player, (int, int)> playerStats = new Dictionary<Player, (int, int)>();
 
-            for(int i = 0; i < players.Count; i++)
-            {
-                List<Card> endCards = new List<Card>(players[i].cards);
-                endCards.AddRange(cards);
+            for (int i = 0; i < players.Count; i++)
+                playerStats[players[i]] = (CalculateCombination(players[i].cards), i + 1);
 
-            }
-
-            int max = playerStats.Max(x => x.Value.Item1*1000000 + x.Value.Item2);
-            var winners = playerStats.Where(x => x.Value.Item1 * 1000000 + x.Value.Item2 == max).ToList();
-            foreach(KeyValuePair<Player, (int, int, int)> kvp in winners)
+            int max = playerStats.Max(x => x.Value.Item1);
+            var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
+            ShowCards();
+            foreach(KeyValuePair<Player, (int, int)> kvp in winners)
             {
                 Player p = kvp.Key;
-                Console.WriteLine("Player {0} has won {1}$!", kvp.Value.Item3, cash/winners.Count);
+                Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash/winners.Count, IntCombToStr(kvp.Value.Item1));
             }
+            Console.ReadKey();
         }
         private void ShowCards()
         {
