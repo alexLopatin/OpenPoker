@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenPoker", "OpenPoker\Open
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsolePoker", "ConsolePoker\ConsolePoker.csproj", "{7E1EF4FC-322D-44F5-BE17-436B8412A4CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestConsole", "UnitTestConsole\UnitTestConsole.csproj", "{C361B4E3-98C1-453D-98AD-1251DE56B942}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7E1EF4FC-322D-44F5-BE17-436B8412A4CC} = {7E1EF4FC-322D-44F5-BE17-436B8412A4CC}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +26,10 @@ Global
 		{7E1EF4FC-322D-44F5-BE17-436B8412A4CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E1EF4FC-322D-44F5-BE17-436B8412A4CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E1EF4FC-322D-44F5-BE17-436B8412A4CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C361B4E3-98C1-453D-98AD-1251DE56B942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C361B4E3-98C1-453D-98AD-1251DE56B942}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C361B4E3-98C1-453D-98AD-1251DE56B942}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C361B4E3-98C1-453D-98AD-1251DE56B942}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

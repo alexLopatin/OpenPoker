@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ConsolePoker
 {
-    struct Card
+    public struct Card
     {
         public enum Suit { Spades, Hearts, Diamonds, Clubs }
         public Suit suit { get; private set; }
@@ -39,7 +39,7 @@ namespace ConsolePoker
             return suit.ToString() + ' ' + r;
         }
     }
-    class Player
+    public class Player
     {
         public List<Card> cards = new List<Card>();
         public int bet = 0;
@@ -62,7 +62,7 @@ namespace ConsolePoker
             return 0;
         }
     }
-    class Deck
+    public class Deck
     {
         List<Card> cards = new List<Card>();
         public Deck()
@@ -83,12 +83,12 @@ namespace ConsolePoker
             return card;
         }
     }
-    class Game
+    public class Game
     {
         List<Player> players;
         private CancellationTokenSource tokenSource;
         private CancellationToken cancellation;
-        private List<Card> cards = new List<Card>();
+        public List<Card> cards = new List<Card>();
         public Game()
         {
             tokenSource = new CancellationTokenSource();
@@ -234,6 +234,107 @@ namespace ConsolePoker
                 }
             }
         }
+        
+        public int CalculateCombination(List<Card> playerCards)
+        {
+            List<Card> allCards = new List<Card>(playerCards);
+            allCards.AddRange(cards);
+            int res = 0;
+
+
+            // 0 - старшая карта
+            playerCards = playerCards.OrderBy(x => x.rank).ToList();
+            res = 100 * playerCards[1].rank + playerCards[0].rank;
+
+            // 1,2 - пара или две пары
+            allCards = allCards.OrderBy(x => x.rank).ToList();
+            List<int> rankPairs = new List<int>();
+            for (int i = 0; i < 6; i++)
+                if (allCards[i].rank == allCards[i + 1].rank)
+                    rankPairs.Add(allCards[i].rank);
+            rankPairs.Sort();
+            if (rankPairs.Count == 1)
+            {
+                res = 100000000 + rankPairs[0] * 1000000; //доделать
+            }
+            else if (rankPairs.Count == 2)
+                res = 200000000 + rankPairs[1] * 1000000 + rankPairs[0] * 10000;
+
+
+            // 3 - тройка
+            int rankTrip = 0;
+            for (int i = 0; i < 5; i++)
+                if (allCards[i].rank == allCards[i + 1].rank &&
+                    allCards[i + 1].rank == allCards[i + 2].rank)
+                    rankTrip = allCards[i].rank;
+            if (rankTrip != 0)
+                res = 300000000 + rankTrip * 10000;
+
+            // 4 - стрит
+            int rankStreet = 0;
+            for (int i = 0; i < 3; i++)
+                for (int j = i; j < i + 4; j++)
+                    if (allCards[j].rank + 1 != allCards[j + 1].rank)
+                        break;
+                    else if (j == i + 3)
+                        rankStreet = allCards[j + 1].rank;
+            if (rankStreet != 0)
+                res = 400000000 + rankStreet;
+
+            // 5 - флеш
+            allCards = allCards.OrderBy(x => (int)x.suit * 100 + x.rank).ToList();
+            int rankFlash = 0;
+            for (int i = 0; i < 3; i++)
+                for (int j = i; j < i + 4; j++)
+                    if (allCards[j].suit != allCards[j + 1].suit)
+                        break;
+                    else if (j == i + 3)
+                        rankFlash = allCards[j + 1].rank;
+            if (rankFlash != 0)
+                res = 500000000 + rankFlash;
+
+            // 6 - фуллхаус
+            int rankFullHouse = 0;
+            for (int i = 0; i < rankPairs.Count; i++)
+                if (rankFullHouse < rankPairs[i] && rankPairs[i] != rankTrip)
+                    rankFullHouse = rankPairs[i];
+            if (rankFullHouse != 0 && rankTrip != 0)
+                res = 600000000 + 100 * rankTrip + rankFullHouse;
+
+            // 7 - каре
+            int rankKare = 0;
+            allCards = allCards.OrderBy(x => x.rank).ToList();
+            for (int i = 0; i < 4; i++)
+                for (int j = i; j < i + 3; j++)
+                    if (allCards[j].rank != allCards[j + 1].rank)
+                        break;
+                    else if (j == i + 2)
+                        rankKare = allCards[j + 1].rank;
+            if (rankKare != 0)
+                res = 700000000 + 100* rankKare;
+
+            // 8 - стрит флеш
+            int streetFlash = 0;
+            allCards = allCards.OrderBy(x => (int)x.suit * 100 + x.rank).ToList();
+            for (int i = 0; i < 3; i++)
+                for (int j = i; j < i + 4; j++)
+                    if (allCards[j].suit != allCards[j + 1].suit || allCards[j].rank + 1 != allCards[j + 1].rank)
+                        break;
+                    else if (j == i + 3)
+                        streetFlash = allCards[j + 1].rank;
+            if (streetFlash != 0)
+                res = 800000000 + streetFlash;
+
+            // 9 - флеш рояль
+            for (int i = 0; i < 3; i++)
+                for (int j = i; j < i + 4; j++)
+                    if (allCards[j].suit != allCards[j + 1].suit || allCards[j].rank + 1 != allCards[j + 1].rank)
+                        break;
+                    else if (j == i + 3 && allCards[j + 1].rank == 14)
+                        res = 900000000;
+
+            return res;
+        }
         private void FindWinner(int cash)
         {
             Dictionary<Player, (int, int, int)> playerStats = new Dictionary<Player, (int, int, int)>();
@@ -245,8 +346,8 @@ namespace ConsolePoker
 
             }
 
-            int max = playerStats.Max(x => x.Value.Item1*100000 + x.Value.Item2);
-            var winners = playerStats.Where(x => x.Value.Item1 * 100000 + x.Value.Item2 == max).ToList();
+            int max = playerStats.Max(x => x.Value.Item1*1000000 + x.Value.Item2);
+            var winners = playerStats.Where(x => x.Value.Item1 * 1000000 + x.Value.Item2 == max).ToList();
             foreach(KeyValuePair<Player, (int, int, int)> kvp in winners)
             {
                 Player p = kvp.Key;
