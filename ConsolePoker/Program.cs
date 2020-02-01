@@ -16,6 +16,12 @@ namespace ConsolePoker
             this.suit = suit;
             this.rank = rank;
         }
+
+        public override bool Equals(object obj)
+        {
+            Card c = (Card)obj;
+            return c.rank == rank && c.suit == suit;
+        }
         public override string ToString()
         {
             string r = rank.ToString();
@@ -46,8 +52,8 @@ namespace ConsolePoker
         public async Task<int> DoBet(int minBet)
         {
 
-            //int nb = Int32.Parse(Console.ReadLine());
-            int nb = 100;
+            int nb = Int32.Parse(Console.ReadLine());
+            //int nb = 100;
             if (nb == -1)
                 bet = -1;
             else if (nb < minBet)
@@ -96,7 +102,7 @@ namespace ConsolePoker
             tokenSource = new CancellationTokenSource();
             cancellation = tokenSource.Token;
             players = new List<Player>();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 6; i++)
                 players.Add(new Player());
         }
         private void PrintState()
@@ -257,10 +263,21 @@ namespace ConsolePoker
             rankPairs.Sort();
             if (rankPairs.Count == 1)
             {
-                res = 100000000 + rankPairs[0] * 1000000; //доделать
+                List<Card> kickers = new List<Card>(allCards);
+                kickers.RemoveAll(x => x.rank == rankPairs[0]);
+                res = 100000000 + rankPairs[0] * 1000000 + 
+                    kickers[kickers.Count - 1].rank*10000 + 
+                    kickers[kickers.Count - 2].rank * 100 +
+                    kickers[kickers.Count - 3].rank;
             }
             else if (rankPairs.Count == 2)
-                res = 200000000 + rankPairs[1] * 1000000 + rankPairs[0] * 10000;
+            {
+                List<Card> kickers = new List<Card>(allCards);
+                kickers.RemoveAll(x => x.rank == rankPairs[0] || x.rank == rankPairs[1]);
+                int rankKicker = kickers.Last().rank;
+                res = 200000000 + rankPairs[1] * 1000000 + rankPairs[0] * 10000 + rankKicker;
+            }
+                
 
 
             // 3 - тройка
@@ -270,7 +287,14 @@ namespace ConsolePoker
                     allCards[i + 1].rank == allCards[i + 2].rank)
                     rankTrip = allCards[i].rank;
             if (rankTrip != 0)
-                res = 300000000 + rankTrip * 10000;
+            {
+                List<Card> kickers = new List<Card>(allCards);
+                kickers.RemoveAll(x => x.rank == rankTrip);
+                res = 300000000 + rankTrip * 10000 +
+                    kickers[kickers.Count - 1].rank * 100 +
+                    kickers[kickers.Count - 2].rank;
+            }
+                
 
             // 4 - стрит
             int rankStreet = 0;
@@ -313,7 +337,13 @@ namespace ConsolePoker
                     else if (j == i + 2)
                         rankKare = allCards[j + 1].rank;
             if (rankKare != 0)
-                res = 700000000 + 100* rankKare;
+            {
+                List<Card> kickers = new List<Card>(allCards);
+                kickers.RemoveAll(x => x.rank == rankKare);
+                int rankKicker = kickers.Last().rank;
+                res = 700000000 + 100 * rankKare + rankKicker;
+            }
+                
 
             // 8 - стрит флеш
             int streetFlash = 0;
@@ -370,7 +400,8 @@ namespace ConsolePoker
             Dictionary<Player, (int, int)> playerStats = new Dictionary<Player, (int, int)>();
 
             for (int i = 0; i < players.Count; i++)
-                playerStats[players[i]] = (CalculateCombination(players[i].cards), i + 1);
+                if(players[i].bet != -1)
+                    playerStats[players[i]] = (CalculateCombination(players[i].cards), i + 1);
 
             int max = playerStats.Max(x => x.Value.Item1);
             var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
