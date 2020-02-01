@@ -1,0 +1,28 @@
+﻿@using ConsolePoker
+
+@model GameRoom
+@{
+    ViewData["Title"] = Model.name;
+}
+
+<h2>Room #@Model.id</h2>
+
+<div id="cards">
+    <table >
+        <thead>
+            <tr><th>Card</th></tr>
+        </thead>
+        <tbody>
+            @foreach (Card c in Model.game.cards)
+            {
+
+                <tr>
+                    <td>@c.ToString()</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<script src="~/js/RoomScript.js"></script>

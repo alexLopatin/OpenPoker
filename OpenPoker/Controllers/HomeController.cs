@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OpenPoker.Models;
+using ConsolePoker;
 
 namespace OpenPoker.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
+        public List<GameRoom> rooms = new List<GameRoom>();
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
@@ -20,7 +21,7 @@ namespace OpenPoker.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(Server.rooms);
         }
 
         public IActionResult Privacy()

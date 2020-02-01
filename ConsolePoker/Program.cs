@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
 
 namespace ConsolePoker
 {
@@ -16,7 +17,10 @@ namespace ConsolePoker
             this.suit = suit;
             this.rank = rank;
         }
-
+        public override int GetHashCode()
+        {
+            return rank.GetHashCode()+ suit.GetHashCode();
+        }
         public override bool Equals(object obj)
         {
             Card c = (Card)obj;
@@ -51,9 +55,8 @@ namespace ConsolePoker
         public int bet = 0;
         public async Task<int> DoBet(int minBet)
         {
-
-            int nb = Int32.Parse(Console.ReadLine());
-            //int nb = 100;
+            //int nb = Int32.Parse(Console.ReadLine());
+            int nb = 100;
             if (nb == -1)
                 bet = -1;
             else if (nb < minBet)
@@ -65,6 +68,8 @@ namespace ConsolePoker
             {
                 int res = nb - bet;
                 bet = nb;
+                Random rand = new Random();
+                await Task.Delay(rand.Next(1,1000));
                 return res;
             }
             return 0;
@@ -116,23 +121,22 @@ namespace ConsolePoker
                 Console.WriteLine("  bet: {0}", players[i].bet);
             }
         }
-        private async void Tick()
+        private async void GameCycle()
         {
             int curBlind = -1;
             int curBetting = 0;
             int minBet = 0;
             int countInGame = players.Count;
             Deck deck = new Deck();
-            int curCycle = 0;
             int cash = 0;
             while(true)
             {
                 if (cancellation.IsCancellationRequested)
                 {
-                    Console.WriteLine("task canceled");
+                    Console.WriteLine("Shutting down...");
                     break;
                 }
-
+                Debug.WriteLine("Current cycle is " + curCycle.ToString());
                 if (curCycle == 0)
                 {
                     deck = new Deck();
@@ -163,7 +167,7 @@ namespace ConsolePoker
                     minBet = 100;
                     cash += 150;
                 }
-
+                
                 int i = 0;
                 int l = players.Count;
                 while( i < l)
@@ -241,8 +245,8 @@ namespace ConsolePoker
                     Console.WriteLine("EndGame");
                 }
             }
-        }
-        
+        }   
+        public int curCycle = 0;
         public int CalculateCombination(List<Card> playerCards)
         {
             List<Card> allCards = new List<Card>(playerCards);
@@ -411,7 +415,7 @@ namespace ConsolePoker
                 Player p = kvp.Key;
                 Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash/winners.Count, IntCombToStr(kvp.Value.Item1));
             }
-            Console.ReadKey();
+            //Console.ReadKey();
         }
         private void ShowCards()
         {
@@ -425,8 +429,8 @@ namespace ConsolePoker
         }
         public async void Start()
         {
-            //await Task.Run(() => Tick());
-            Tick();
+            await Task.Run(() => GameCycle());
+            //GameCycle();
         }
     }
     class Program
@@ -435,6 +439,7 @@ namespace ConsolePoker
         {
             Game game = new Game();
             game.Start();
+            Console.ReadKey();
         }
     }
 }

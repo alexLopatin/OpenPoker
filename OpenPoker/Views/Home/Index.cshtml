@@ -1,8 +1,20 @@
-﻿@{
+﻿@using OpenPoker.Controllers
+@model IEnumerable<GameRoom>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Game rooms</h2>
+<table>
+    <thead>
+        <tr><th>Name</th><th>Game Cycle</th></tr>
+    </thead>
+    <tbody>
+        @foreach (GameRoom room in Model)
+        {
+            <tr>
+                <td>@Html.ActionLink(room.name, "Index", "Room",new { roomId = room.id} )</td> <td>@room.game.curCycle</td>
+            </tr>
+        }
+    </tbody>
+</table>
