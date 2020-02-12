@@ -12,7 +12,8 @@ namespace OpenPoker.Controllers
         // GET: Room
         public ActionResult Index(int roomId)
         {
-            return View(Server.rooms.Find(x=>x.id == roomId));
+            //return View(Server.rooms.Find(x=>x.id == roomId));
+            return View();
         }
 
         public ActionResult Data(int roomId)

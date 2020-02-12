@@ -58,6 +58,61 @@ html {
   min-height: 100%;
 }
 
+div.player {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    white-space: nowrap;
+    display: inline;
+}
+div#player1 {
+    top: 50px;
+    left: 50%;
+    transform: translate(-50%,0);
+}
+div#player2 {
+    top: 20%;
+    left: 80%;
+    transform: translate(-50%,0);
+}
+div#player3 {
+    top: auto;
+    bottom: 20%;
+    left: 80%;
+    transform: translate(-50%,0);
+}
+div#player4 {
+    top: auto;
+    bottom: 50px;
+    left: 50%;
+    transform: translate(-50%,0);
+}
+div#player5 {
+    top: auto;
+    bottom: 20%;
+    left: 20%;
+    transform: translate(-50%,0);
+}
+div#player6 {
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%,0);
+}
+img#card {
+    border: solid 2px;
+    border-color: dimgray;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 2px;
+    background-color: white;
+    height: 110px;
+}
+
+div#table {
+    width : 100%;
+    height: 800px;
+}
+
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;

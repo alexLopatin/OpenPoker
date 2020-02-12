@@ -1,28 +1,38 @@
-﻿@using ConsolePoker
-
-@model GameRoom
-@{
-    ViewData["Title"] = Model.name;
+﻿@page
+    <div class="card" id="table">
+        <div class="card-body">
+            <div class="player" id="player1">
+                <p style="text-align:center">Player 1</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+            <div class="player" id="player2">
+                <p style="text-align:center">Player 2</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+            <div class="player" id="player3">
+                <p style="text-align:center">Player 3</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+            <div class="player" id="player4">
+                <p style="text-align:center">Player 4</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+            <div class="player" id="player5">
+                <p style="text-align:center">Player 5</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+            <div class="player" id="player6">
+                <p style="text-align:center">Player 6</p>
+                <img src="~/cards/10_of_clubs.png" id="card" />
+                <img src="~/cards/2_of_clubs.png" id="card" />
+            </div>
+        </div>
+    </div>
+@section Scripts {
+    <script src="~/js/RoomScript.js"></script>
 }
-
-<h2>Room #@Model.id</h2>
-
-<div id="cards">
-    <table >
-        <thead>
-            <tr><th>Card</th></tr>
-        </thead>
-        <tbody>
-            @foreach (Card c in Model.game.cards)
-            {
-
-                <tr>
-                    <td>@c.ToString()</td>
-                </tr>
-            }
-
-        </tbody>
-    </table>
-</div>
-
-<script src="~/js/RoomScript.js"></script>
