@@ -9,14 +9,16 @@ namespace OpenPoker.GameEngine
     public class TurnArgs
     {
         public Player player { get; set; }
-        public TurnArgs(Player player)
+        public int playerId { get; set; }
+        public TurnArgs(Player player, int playerId)
         {
             this.player = player;
+            this.playerId = playerId;
         }
     }
     public class Game
     {
-        List<Player> players;
+        public List<Player> players;
         private CancellationTokenSource tokenSource;
         private CancellationToken cancellation;
         public List<Card> cards = new List<Card>();
@@ -85,9 +87,9 @@ namespace OpenPoker.GameEngine
                     curBetting = curBlind;
                     minBet = 100;
                     cash += 150;
-                    foreach (Player p in players)
+                    for(int m = 0; m < players.Count; m++)
                         if (OnTurnMade != null)
-                            OnTurnMade.Invoke(this, new TurnArgs(p));
+                            OnTurnMade.Invoke(this, new TurnArgs(players[m], m));
                 }
 
                 int i = 0;
@@ -99,7 +101,7 @@ namespace OpenPoker.GameEngine
                         Console.WriteLine("Player {0} betting: ", (i + curBetting) % players.Count + 1);
                         cash += await players[(i + curBetting) % players.Count].DoBet(minBet);
                         if (OnTurnMade != null)
-                            OnTurnMade.Invoke(this, new TurnArgs(players[(i + curBetting) % players.Count]));
+                            OnTurnMade.Invoke(this, new TurnArgs(players[(i + curBetting) % players.Count], (i + curBetting) % players.Count));
                         if (players[(i + curBetting) % players.Count].bet == -1)
                             countInGame--;
                         if (countInGame == 1)

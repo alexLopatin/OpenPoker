@@ -7,8 +7,8 @@ namespace OpenPoker.GameEngine
 {
     public class Player
     {
-        public List<Card> cards = new List<Card>();
-        public int bet = 0;
+        public List<Card> cards { get; set; } = new List<Card>();
+        public int bet { get; set; } = 0;
         public async Task<int> DoBet(int minBet)
         {
             //int nb = Int32.Parse(Console.ReadLine());

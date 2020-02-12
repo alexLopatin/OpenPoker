@@ -98,6 +98,13 @@ div#player6 {
     left: 20%;
     transform: translate(-50%,0);
 }
+
+div#deck {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
 img#card {
     border: solid 2px;
     border-color: dimgray;

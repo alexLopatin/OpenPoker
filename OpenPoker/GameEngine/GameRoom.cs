@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using OpenPoker.Hubs;
 
 namespace OpenPoker.GameEngine
 {
     public class GameTurnArgs
     {
-        public Player player { get; set; }
+        public List<Player> players { get; set; }
+        public List<Card> deck { get; set; }
         public int roomId { get; set; }
-        public GameTurnArgs(Player player, int roomId)
+        public GameTurnArgs(List<Player> players, int roomId, List<Card> deck)
         {
-            this.player = player;
+            this.players = players;
             this.roomId = roomId;
+            this.deck = deck;
         }
     }
     public class GameRoom
@@ -25,7 +28,7 @@ namespace OpenPoker.GameEngine
         private void TurnHandler(object sender, TurnArgs args)
         {
             if (OnGameTurn != null)
-                OnGameTurn.Invoke(this, new GameTurnArgs(args.player, id));
+                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, id, game.cards));
         }
         public GameRoom(string name, int id, Game game = null)
         {
@@ -35,7 +38,6 @@ namespace OpenPoker.GameEngine
             this.name = name;
             this.id = id;
             game.OnTurnMade += TurnHandler;
-            OnGameTurn += 
             game.Start();
         }
     }
