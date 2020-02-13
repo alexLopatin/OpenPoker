@@ -5,14 +5,27 @@ location.search.substr(1).split("&").forEach(function (item) { queryDict[item.sp
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/roomHub").build();
 
-connection.on("UpdateGame", function (players, deck) {
-    //player state update
-    for (var i = 0; i < players.length; i++) {
-        document.querySelector("#player" + (i + 1) + " #bet").textContent = players[i].bet;
-        var cards = document.querySelectorAll("#player" + (i + 1) + " #card");
-        cards[0].src = GetImagePath(players[i].cards[0].rank, players[i].cards[0].suit);
-        cards[1].src = GetImagePath(players[i].cards[1].rank, players[i].cards[1].suit);
-    }
+connection.on("UpdatePlayer", function (args) {
+    document.querySelector("#player" + (args.id + 1) + " #bet").textContent = args.bet;
+    var cards = document.querySelectorAll("#player" + (args.id + 1) + " #card");
+    cards[0].src = GetImagePath(args.cards[0].rank, args.cards[0].suit);
+    cards[1].src = GetImagePath(args.cards[1].rank, args.cards[1].suit);
+    document.getElementById("table").removeAttribute("hidden");
+
+    var choice = args.choice;
+    if (choice == "None")
+        return;
+    var tag = document.createElement("p");
+    tag.textContent = choice;
+    tag.setAttribute("id", "caption")
+    document.querySelector("#player" + (args.id + 1)).appendChild(tag);
+    setTimeout(function () {
+        document.querySelector("#player" + (args.id + 1)).removeChild(document.querySelector("#player" + (args.id + 1)).lastChild);
+    }, 500);
+
+});
+
+connection.on("UpdateTable", function (args) {
     //deck update
     var deckDom = document.querySelector("#deck");
     var child = deckDom.lastElementChild;
@@ -20,26 +33,28 @@ connection.on("UpdateGame", function (players, deck) {
         deckDom.removeChild(child);
         child = deckDom.lastElementChild;
     }
-    for (var i = 0; i < deck.length; i++) {
+    for (var i = 0; i < args.cards.length; i++) {
         var tag = document.createElement("img");
         tag.setAttribute("id", "card");
-        tag.setAttribute("src", GetImagePath(deck[i].rank, deck[i].suit));
+        tag.setAttribute("src", GetImagePath(args.cards[i].rank, args.cards[i].suit));
         deckDom.appendChild(tag);
     }
+    document.getElementById("table").removeAttribute("hidden");
 });
 
-connection.on("UpdatePlayer", function (playerId, action) {
-    var tag = document.createElement("p");
-    var node = document.createTextNode(action);
-    tag.textContent = action;
-    tag.setAttribute("id", "caption")
-    //document.querySelector("#player" + (playerId + 1) + " #bet").textContent = action;
-    document.querySelector("#player" + (playerId + 1)).appendChild(tag);
+connection.on("EndGameUpdate", function (args) {
+    //deck update
+    var endText = document.querySelector("#endResult");
+    endText.textContent = args.final;
     setTimeout(function () {
-        document.querySelector("#player" + (playerId + 1)).removeChild(document.querySelector("#player" + (playerId + 1)).lastChild);
-    }, 500);
+        endText.textContent = "";
+    }, 4000);
+    document.getElementById("table").removeAttribute("hidden");
 });
 
+connection.on("Reject", function (reason) {
+    alert(reason);
+});
 
 function GetImagePath(rank, suit) {
     return "cards/" + RankToString(rank) + "_of_" + SuitToString(suit) + ".png";

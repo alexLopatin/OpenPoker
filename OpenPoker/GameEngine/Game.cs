@@ -4,58 +4,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace OpenPoker.GameEngine
 {
-    public class TurnArgs
-    {
-        public IPlayer player { get; set; }
-        public int playerId { get; set; }
-        public string action { get; set; }
-        public TurnArgs(IPlayer player, int playerId, int diff)
-        {
-            this.player = player;
-            this.playerId = playerId;
-            action = CalcAction(diff);
-        }
-        public TurnArgs(IPlayer player, int playerId)
-        {
-            this.player = player;
-            this.playerId = playerId;
-            action = "None";
-        }
-        private string CalcAction(int diff)
-        {
-            if (diff == -1)
-                return "Fold";
-            if (diff == 0)
-                return "Check";
-            if (diff == -2)
-                return "Call";
-            if (diff > 1)
-                return "Raise";
-            return "None";
-        }
-    }
-    public class EndArgs
-    {
-        public List<int> winners { get; set; }
-        public EndArgs(List<int> winners)
-        {
-            this.winners = winners;
-        }
-    } 
     public class Game
     {
+        public const int MAX_PLAYER_COUNT = 6;
         public List<IPlayer> players;
         private CancellationTokenSource tokenSource;
         private CancellationToken cancellation;
         public List<Card> cards = new List<Card>();
+        private UpdateComposer updateComposer;
         public Game()
         {
             tokenSource = new CancellationTokenSource();
             cancellation = tokenSource.Token;
+            updateComposer = new UpdateComposer(this);
             players = new List<IPlayer>();
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
                 players.Add(new Player());
         }
         private void PrintState()
@@ -63,14 +29,22 @@ namespace OpenPoker.GameEngine
             for (int i = 0; i < players.Count; i++)
             {
                 Console.WriteLine("Player {0}:", i + 1);
+                if(players[i].cards.Count > 0)
                 Console.WriteLine("  cards: {0}, {1}",
                     players[i].cards[0].ToString(),
                     players[i].cards[1].ToString());
                 Console.WriteLine("  bet: {0}", players[i].bet);
             }
         }
-        public EventHandler<TurnArgs> OnTurnMade;
-        public EventHandler<EventArgs> OnGameCycle;
+        public EventHandler<GameUpdateArgs> OnGameUpdate;
+        /// <summary>
+        /// Only call on IServer instance
+        /// </summary>
+        /// <returns></returns>
+        public GameUpdateArgs GetUpdateData()
+        {
+            return updateComposer.UpdateAll();
+        }
         private async void GameCycle()
         {
             int curBlind = -1;
@@ -91,7 +65,7 @@ namespace OpenPoker.GameEngine
                 {
                     deck = new Deck();
                     deck.Shuffle();
-                    foreach (Player p in players)
+                    foreach (IPlayer p in players)
                     {
                         p.cards.Clear();
                         p.cards.Add(deck.Pop());
@@ -116,37 +90,35 @@ namespace OpenPoker.GameEngine
                     curBetting = curBlind;
                     minBet = 100;
                     cash += 150;
-                    for(int m = 0; m < players.Count; m++)
-                        if (OnTurnMade != null)
-                            OnTurnMade.Invoke(this, new TurnArgs(players[m], m));
+                    if (OnGameUpdate != null)
+                        OnGameUpdate.Invoke(this, updateComposer.UpdateAll());
                 }
 
                 int i = 0;
                 int l = players.Count;
-                while (i < l)
+                while (i < l && curCycle < 3)
                 {
                     if (players[(i + curBetting) % players.Count].bet >= 0)
                     {
                         Console.WriteLine("Player {0} betting: ", (i + curBetting) % players.Count + 1);
                         int prevBet = players[(i + curBetting) % players.Count].bet;
-                        int diff = minBet;
                         int bet = await players[(i + curBetting) % players.Count].DoBet(minBet);
-                        if (minBet == bet)
-                            diff = -2;
-                        else if (prevBet == players[(i + curBetting) % players.Count].bet)
+                        int diff = 0;
+                        if (players[(i + curBetting) % players.Count].bet > minBet)
+                            diff = 1;
+                        if (players[(i + curBetting) % players.Count].bet == minBet)
                             diff = 0;
-                        else
-                            diff = players[(i + curBetting) % players.Count].bet - minBet;
-
+                        if (prevBet == players[(i + curBetting) % players.Count].bet)
+                            diff = -2;
                         cash += bet;
                         if (players[(i + curBetting) % players.Count].bet == -1)
                         {
                             countInGame--;
                             diff = -1;
                         }
+                        if (OnGameUpdate != null)
+                            OnGameUpdate.Invoke(this, updateComposer.UpdateOnlyOnePlayer((i + curBetting) % players.Count, diff));
 
-                        if (OnTurnMade != null)
-                            OnTurnMade.Invoke(this, new TurnArgs(players[(i + curBetting) % players.Count], (i + curBetting) % players.Count, diff));
 
                         if (countInGame == 1)
                             break;
@@ -174,9 +146,12 @@ namespace OpenPoker.GameEngine
                             winner = players[i];
                             break;
                         }
+                    string res = String.Format("Player {0} has won {1}$!", i, cash);
+                    if (OnGameUpdate != null)
+                        OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
                     Console.WriteLine("Player {0} has won {1}$!", i, cash);
-
-                    foreach (Player p in players)
+                    await Task.Delay(5000);
+                    foreach (IPlayer p in players)
                     {
                         p.cards.Clear();
                         p.bet = 0;
@@ -184,6 +159,7 @@ namespace OpenPoker.GameEngine
                     cards.Clear();
                     curCycle = 0;
                     cash = 0;
+                    countInGame = players.Count;
                     continue;
                 }
 
@@ -193,9 +169,8 @@ namespace OpenPoker.GameEngine
                     cards.Add(deck.Pop());
                     cards.Add(deck.Pop());
                     await Task.Delay(1000);
-                    if (OnGameCycle != null)
-                        OnGameCycle.Invoke(this, new EventArgs());
-
+                    if (OnGameUpdate != null)
+                        OnGameUpdate.Invoke(this, updateComposer.UpdateTable());
                     ShowCards();
                     curCycle++;
                 }
@@ -203,16 +178,25 @@ namespace OpenPoker.GameEngine
                 {
                     cards.Add(deck.Pop());
                     await Task.Delay(1000);
-                    if (OnGameCycle != null)
-                        OnGameCycle.Invoke(this, new EventArgs());
+                    if (OnGameUpdate != null)
+                        OnGameUpdate.Invoke(this, updateComposer.UpdateTable());
                     ShowCards();
                     curCycle++;
                 }
                 else
                 {
                     FindWinner(cash);
-                    foreach (Player p in players)
+                    await Task.Delay(5000);
+                    foreach (IPlayer p in players)
+                            if (p.IsDisconnected)
+                            {
+                                players.Remove(p);
+                                break;
+                            }
+                                
+                    foreach (IPlayer p in players)
                     {
+
                         p.cards.Clear();
                         p.bet = 0;
                     }
@@ -220,6 +204,7 @@ namespace OpenPoker.GameEngine
                     curCycle = 0;
                     cash = 0;
                     Console.WriteLine("EndGame");
+                    countInGame = players.Count;
                 }
             }
         }
@@ -387,18 +372,15 @@ namespace OpenPoker.GameEngine
             int max = playerStats.Max(x => x.Value.Item1);
             var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
             ShowCards();
-            List<int> wins = new List<int>();
+            string res = "";
             foreach (KeyValuePair<IPlayer, (int, int)> kvp in winners)
             {
                 IPlayer p = kvp.Key;
-                wins.Add(kvp.Value.Item2);
-                //Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
+                res += String.Format("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
             }
-            if (OnWinnersCalc != null)
-                OnWinnersCalc.Invoke(this, new EndArgs(wins));
-            //Console.ReadKey();
+            if (OnGameUpdate != null)
+                OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
         }
-        public EventHandler<EndArgs> OnWinnersCalc;
         private void ShowCards()
         {
             Console.WriteLine("Shown cards:");

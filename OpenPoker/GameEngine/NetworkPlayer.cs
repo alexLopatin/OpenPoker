@@ -5,8 +5,12 @@ using System.Threading.Tasks;
 
 namespace OpenPoker.GameEngine
 {
-    public class Player : IPlayer
+    public class NetworkPlayer : IPlayer
     {
+        public NetworkPlayer()
+        {
+
+        }
         public bool IsDisconnected { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
@@ -15,7 +19,7 @@ namespace OpenPoker.GameEngine
             //int nb = Int32.Parse(Console.ReadLine());
             Random rand = new Random();
             int r = rand.Next(1, 15);
-            
+
             int nb = 100;
 
             if (r < 2)
@@ -30,7 +34,7 @@ namespace OpenPoker.GameEngine
             {
                 bet = -1;
                 await Task.Delay(rand.Next(1000, 2000));
-            }  
+            }
             else if (nb < minBet)
             {
                 Console.WriteLine("Write correct bet.");
@@ -40,7 +44,7 @@ namespace OpenPoker.GameEngine
             {
                 int res = nb - bet;
                 bet = nb;
-                
+
                 await Task.Delay(rand.Next(1000, 2000));
                 return res;
             }

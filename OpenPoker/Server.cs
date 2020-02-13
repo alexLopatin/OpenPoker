@@ -12,30 +12,44 @@ namespace OpenPoker
     {
         public List<GameRoom> rooms { get; }
         public void CreateGame(GameRoom room);
-        public IHubContext<RoomHub> hubContext { get; set; }
+        public Task SendUpdateData(IClientProxy caller, int roomId);
+        public Task Reject(IClientProxy caller);
     }
     public class Server : IServer
     {
         public List<GameRoom> rooms { get; private set; } = new List<GameRoom>();
-        public IHubContext<RoomHub> hubContext { get; set; }
-        public void SendPlayerState(object sender, GameTurnArgs args)
+        private IHubContext<RoomHub> HubContext { get; set; }
+        public void SendPlayerState(object sender, GameUpdateArgs args)
         {
             var room = (GameRoom)sender;
-            if (hubContext != null)
-                hubContext.Clients.Group("/room/" + room.id.ToString()).SendAsync("UpdateGame", args.players, args.deck);
-            if(args.action!= "None" && hubContext != null)
-                hubContext.Clients.Group("/room/" + room.id.ToString()).SendAsync("UpdatePlayer", args.playerId, args.action);
-
+            foreach(KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
+            {
+                HubContext.Clients.Group("/room/" + room.id.ToString())
+                    .SendAsync(kvp.Key, kvp.Value);
+            }
+        }
+        
+        public async Task SendUpdateData(IClientProxy caller, int roomId)
+        {
+            
+            var room = rooms.Find(p => p.id == roomId);
+            var args = room.game.GetUpdateData();
+            foreach (KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
+                await caller.SendAsync(kvp.Key, kvp.Value);
+        }
+        public async Task Reject(IClientProxy caller)
+        {
+            await caller.SendAsync("Reject", "Room is full!");
         }
         public void CreateGame(GameRoom room)
         {
             rooms.Add(room);
-            room.OnGameTurn += SendPlayerState;
+            room.OnGameUpdate += SendPlayerState;
 
         }
         public Server(IHubContext<RoomHub> hubContext)
         {
-            this.hubContext = hubContext;
+            HubContext = hubContext;
             //test rooms
             CreateGame(new GameRoom("First one", 1));
             CreateGame(new GameRoom("Second one", 2));

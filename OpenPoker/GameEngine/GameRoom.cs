@@ -7,35 +7,16 @@ using OpenPoker.Hubs;
 
 namespace OpenPoker.GameEngine
 {
-    public class GameTurnArgs
-    {
-        public List<IPlayer> players { get; set; }
-        public List<Card> deck { get; set; }
-        public int playerId { get; set; }
-        public string action { get; set; }
-        public GameTurnArgs(List<IPlayer> players, List<Card> deck, int playerId, string action)
-        {
-            this.players = players;
-            this.deck = deck;
-            this.action = action;
-            this.playerId = playerId;
-        }
-    }
     public class GameRoom
     {
         public Game game;
         public string name;
         public int id;
-        public EventHandler<GameTurnArgs> OnGameTurn;
-        private void TurnHandler(object sender, TurnArgs args)
+        public EventHandler<GameUpdateArgs> OnGameUpdate;
+        private void TurnHandler(object sender, GameUpdateArgs args)
         {
-            if (OnGameTurn != null)
-                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, game.cards, args.playerId, args.action ));
-        }
-        private void CycleHandler(object sender, EventArgs args)
-        {
-            if (OnGameTurn != null)
-                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, game.cards, -1, "None"));
+            if (OnGameUpdate != null)
+                OnGameUpdate.Invoke(this, args);
         }
         public GameRoom(string name, int id, Game game = null)
         {
@@ -44,8 +25,7 @@ namespace OpenPoker.GameEngine
             this.game = game;
             this.name = name;
             this.id = id;
-            game.OnTurnMade += TurnHandler;
-            game.OnGameCycle += CycleHandler;
+            game.OnGameUpdate += TurnHandler;
             game.Start();
         }
     }
