@@ -8,23 +8,38 @@ using System.Threading.Tasks;
 
 namespace OpenPoker
 {
-    public static class Server
+    public interface IServer
     {
-        public static List<GameRoom> rooms = new List<GameRoom>();
-        public static IHubContext<RoomHub> hubContext = null;
-        public static void SendPlayerState(object sender, GameTurnArgs args)
+        public List<GameRoom> rooms { get; }
+        public void CreateGame(GameRoom room);
+        public IHubContext<RoomHub> hubContext { get; set; }
+    }
+    public class Server : IServer
+    {
+        public List<GameRoom> rooms { get; private set; } = new List<GameRoom>();
+        public IHubContext<RoomHub> hubContext { get; set; }
+        public void SendPlayerState(object sender, GameTurnArgs args)
         {
+            var room = (GameRoom)sender;
             if (hubContext != null)
-                hubContext.Clients.Group("/room/" + args.roomId.ToString()).SendAsync("UpdateGame", args.players, args.deck);
+                hubContext.Clients.Group("/room/" + room.id.ToString()).SendAsync("UpdateGame", args.players, args.deck);
             if(args.action!= "None" && hubContext != null)
-                hubContext.Clients.Group("/room/" + args.roomId.ToString()).SendAsync("UpdatePlayer", args.playerId, args.action);
+                hubContext.Clients.Group("/room/" + room.id.ToString()).SendAsync("UpdatePlayer", args.playerId, args.action);
 
         }
-        public static void CreateGame(GameRoom room)
+        public void CreateGame(GameRoom room)
         {
             rooms.Add(room);
             room.OnGameTurn += SendPlayerState;
 
+        }
+        public Server(IHubContext<RoomHub> hubContext)
+        {
+            this.hubContext = hubContext;
+            //test rooms
+            CreateGame(new GameRoom("First one", 1));
+            CreateGame(new GameRoom("Second one", 2));
+            CreateGame(new GameRoom("Third one", 3));
         }
     }
 }

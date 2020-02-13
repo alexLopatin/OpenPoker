@@ -15,11 +15,7 @@ namespace OpenPoker
     {
         public static void Main(string[] args)
         {
-            Server.CreateGame(new GameRoom("First one", 1));
-            Server.CreateGame(new GameRoom("Second one", 2));
-            Server.CreateGame(new GameRoom("Third one", 3));
             CreateHostBuilder(args).Build().Run();
-            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

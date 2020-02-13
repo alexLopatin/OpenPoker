@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenPoker.GameEngine;
 using OpenPoker.Hubs;
 
 namespace OpenPoker
@@ -26,6 +27,7 @@ namespace OpenPoker
         {
             services.AddControllersWithViews();
             services.AddSignalR();
+            services.AddSingleton<IServer, Server>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

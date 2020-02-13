@@ -15,7 +15,6 @@ namespace OpenPoker.Hubs
         }
         public RoomHub(IHubContext<RoomHub> hubContext)
         {
-            Server.hubContext = hubContext;
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OpenPoker.GameEngine
 {
-    public class Player
+    public class Player : IPlayer
     {
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
@@ -24,7 +24,6 @@ namespace OpenPoker.GameEngine
 
             if (r == 9)
                 nb = -1;
-            
 
             if (nb == -1)
             {

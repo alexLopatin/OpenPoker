@@ -32,7 +32,7 @@ connection.on("UpdatePlayer", function (playerId, action) {
     var tag = document.createElement("p");
     var node = document.createTextNode(action);
     tag.textContent = action;
-    tag.setAttribute("style", "text-align:center")
+    tag.setAttribute("id", "caption")
     //document.querySelector("#player" + (playerId + 1) + " #bet").textContent = action;
     document.querySelector("#player" + (playerId + 1)).appendChild(tag);
     setTimeout(function () {

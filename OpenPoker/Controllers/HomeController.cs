@@ -13,14 +13,16 @@ namespace OpenPoker.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IServer _server;
+        public HomeController(ILogger<HomeController> logger, IServer server)
         {
+            _server = server;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View(Server.rooms);
+            return View(_server.rooms);
         }
 
         public IActionResult Privacy()

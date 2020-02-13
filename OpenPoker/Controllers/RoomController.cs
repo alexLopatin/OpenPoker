@@ -15,10 +15,5 @@ namespace OpenPoker.Controllers
             //return View(Server.rooms.Find(x=>x.id == roomId));
             return View();
         }
-
-        public ActionResult Data(int roomId)
-        {
-            return PartialView(Server.rooms.Find(x => x.id == roomId));
-        }
     }
 }

@@ -8,16 +8,16 @@ namespace OpenPoker.GameEngine
 {
     public class TurnArgs
     {
-        public Player player { get; set; }
+        public IPlayer player { get; set; }
         public int playerId { get; set; }
         public string action { get; set; }
-        public TurnArgs(Player player, int playerId, int diff)
+        public TurnArgs(IPlayer player, int playerId, int diff)
         {
             this.player = player;
             this.playerId = playerId;
             action = CalcAction(diff);
         }
-        public TurnArgs(Player player, int playerId)
+        public TurnArgs(IPlayer player, int playerId)
         {
             this.player = player;
             this.playerId = playerId;
@@ -46,7 +46,7 @@ namespace OpenPoker.GameEngine
     } 
     public class Game
     {
-        public List<Player> players;
+        public List<IPlayer> players;
         private CancellationTokenSource tokenSource;
         private CancellationToken cancellation;
         public List<Card> cards = new List<Card>();
@@ -54,7 +54,7 @@ namespace OpenPoker.GameEngine
         {
             tokenSource = new CancellationTokenSource();
             cancellation = tokenSource.Token;
-            players = new List<Player>();
+            players = new List<IPlayer>();
             for (int i = 0; i < 6; i++)
                 players.Add(new Player());
         }
@@ -167,7 +167,7 @@ namespace OpenPoker.GameEngine
                             l = players.Count - 1;
                 if (countInGame == 1)
                 {
-                    Player winner;
+                    IPlayer winner;
                     for (i = 0; i < players.Count; i++)
                         if (players[i].bet >= 0)
                         {
@@ -378,7 +378,7 @@ namespace OpenPoker.GameEngine
         }
         private void FindWinner(int cash)
         {
-            Dictionary<Player, (int, int)> playerStats = new Dictionary<Player, (int, int)>();
+            Dictionary<IPlayer, (int, int)> playerStats = new Dictionary<IPlayer, (int, int)>();
 
             for (int i = 0; i < players.Count; i++)
                 if (players[i].bet != -1)
@@ -388,9 +388,9 @@ namespace OpenPoker.GameEngine
             var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
             ShowCards();
             List<int> wins = new List<int>();
-            foreach (KeyValuePair<Player, (int, int)> kvp in winners)
+            foreach (KeyValuePair<IPlayer, (int, int)> kvp in winners)
             {
-                Player p = kvp.Key;
+                IPlayer p = kvp.Key;
                 wins.Add(kvp.Value.Item2);
                 //Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
             }
