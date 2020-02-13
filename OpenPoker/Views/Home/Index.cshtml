@@ -16,7 +16,7 @@
             <tr>
                 <td>@Html.ActionLink(room.name, "Index", "Room", new { roomId = room.id })</td>
                 <td>@room.game.curCycle</td>
-                <td>@room.game.players.Count/@Game.MAX_PLAYER_COUNT</td>
+                <td>@room.game.players.Count( p => !p.IsDisconnected)/@Game.MAX_PLAYER_COUNT</td>
             </tr>
         }
     </tbody>

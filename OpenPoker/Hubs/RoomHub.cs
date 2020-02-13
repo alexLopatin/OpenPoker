@@ -13,29 +13,54 @@ namespace OpenPoker.Hubs
         public async Task JoinRoom(string roomId)
         {
             var room = _server.rooms.Find( p=> p.id == Int32.Parse(roomId));
-            if(room.game.players.Count == 6)
+            NetworkPlayer player = (NetworkPlayer)room.game.players.Find(p => {
+                if (p is NetworkPlayer)
+                    if (((NetworkPlayer)p).IsDisconnected)
+                        return true;
+                return false;
+            });
+            if (room.game.players.Count == 6 && player == null)
                 await _server.Reject(Clients.Caller);
             else
             {
                 lock (room.game.players)
                 {
                     Context.Items["roomId"] = roomId;
-                    IPlayer p = new NetworkPlayer();
-                    p.bet = -1;
-                    room.game.players.Add(p);
+                    if (player != null)
+                    {
+                        player.ConnectionId = Context.ConnectionId;
+                        player.IsDisconnected = false;
+                    }
+                    else
+                    {
+                        IPlayer p = new NetworkPlayer(Context.ConnectionId);
+                        p.bet = -1;
+                        room.game.players.Add(p);
+                    }
                 }
                 await Groups.AddToGroupAsync(Context.ConnectionId, "/room/" + roomId);
                 await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId));
             }
         }
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
             string roomId =  Context.Items["roomId"] as string;
             if (roomId == null)
-                return base.OnDisconnectedAsync(exception);
+                await base.OnDisconnectedAsync(exception);
             var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
-            room.game.players.RemoveAll(p => { return false; });
-            return base.OnDisconnectedAsync(exception);
+            lock (room.game.players)
+            {
+                var player = room.game.players.Find(p => {
+                    if (p is NetworkPlayer)
+                        if (((NetworkPlayer)p).ConnectionId == Context.ConnectionId)
+                            return true;
+                    return false;
+                });
+                player.IsDisconnected = true;
+                player.bet = -1;
+            }
+            await _server.SendUpdateData(Clients.Others, Int32.Parse(roomId));
+            await base.OnDisconnectedAsync(exception);
         }
         public RoomHub(IServer server)
         {

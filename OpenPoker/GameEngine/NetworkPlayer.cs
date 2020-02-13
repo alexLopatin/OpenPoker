@@ -7,10 +7,11 @@ namespace OpenPoker.GameEngine
 {
     public class NetworkPlayer : IPlayer
     {
-        public NetworkPlayer()
+        public NetworkPlayer(string connectionId)
         {
-
+            ConnectionId = connectionId;
         }
+        public string ConnectionId {get;set;}
         public bool IsDisconnected { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
