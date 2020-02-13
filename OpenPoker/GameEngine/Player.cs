@@ -12,9 +12,25 @@ namespace OpenPoker.GameEngine
         public async Task<int> DoBet(int minBet)
         {
             //int nb = Int32.Parse(Console.ReadLine());
+            Random rand = new Random();
+            int r = rand.Next(1, 15);
+            
             int nb = 100;
+
+            if (r < 2)
+                nb = minBet + 100 * r;
+            else
+                nb = minBet;
+
+            if (r == 9)
+                nb = -1;
+            
+
             if (nb == -1)
+            {
                 bet = -1;
+                await Task.Delay(rand.Next(1000, 2000));
+            }  
             else if (nb < minBet)
             {
                 Console.WriteLine("Write correct bet.");
@@ -24,8 +40,8 @@ namespace OpenPoker.GameEngine
             {
                 int res = nb - bet;
                 bet = nb;
-                Random rand = new Random();
-                await Task.Delay(rand.Next(1, 1000));
+                
+                await Task.Delay(rand.Next(1000, 2000));
                 return res;
             }
             return 0;

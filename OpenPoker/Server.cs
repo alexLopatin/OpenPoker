@@ -15,12 +15,16 @@ namespace OpenPoker
         public static void SendPlayerState(object sender, GameTurnArgs args)
         {
             if (hubContext != null)
-                hubContext.Clients.Group("/room/" + args.roomId.ToString()).SendAsync("UpdatePlayer", args.players, args.deck);
+                hubContext.Clients.Group("/room/" + args.roomId.ToString()).SendAsync("UpdateGame", args.players, args.deck);
+            if(args.action!= "None" && hubContext != null)
+                hubContext.Clients.Group("/room/" + args.roomId.ToString()).SendAsync("UpdatePlayer", args.playerId, args.action);
+
         }
         public static void CreateGame(GameRoom room)
         {
             rooms.Add(room);
             room.OnGameTurn += SendPlayerState;
+
         }
     }
 }

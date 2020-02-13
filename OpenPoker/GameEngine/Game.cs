@@ -10,12 +10,40 @@ namespace OpenPoker.GameEngine
     {
         public Player player { get; set; }
         public int playerId { get; set; }
+        public string action { get; set; }
+        public TurnArgs(Player player, int playerId, int diff)
+        {
+            this.player = player;
+            this.playerId = playerId;
+            action = CalcAction(diff);
+        }
         public TurnArgs(Player player, int playerId)
         {
             this.player = player;
             this.playerId = playerId;
+            action = "None";
+        }
+        private string CalcAction(int diff)
+        {
+            if (diff == -1)
+                return "Fold";
+            if (diff == 0)
+                return "Check";
+            if (diff == -2)
+                return "Call";
+            if (diff > 1)
+                return "Raise";
+            return "None";
         }
     }
+    public class EndArgs
+    {
+        public List<int> winners { get; set; }
+        public EndArgs(List<int> winners)
+        {
+            this.winners = winners;
+        }
+    } 
     public class Game
     {
         public List<Player> players;
@@ -42,6 +70,7 @@ namespace OpenPoker.GameEngine
             }
         }
         public EventHandler<TurnArgs> OnTurnMade;
+        public EventHandler<EventArgs> OnGameCycle;
         private async void GameCycle()
         {
             int curBlind = -1;
@@ -99,11 +128,26 @@ namespace OpenPoker.GameEngine
                     if (players[(i + curBetting) % players.Count].bet >= 0)
                     {
                         Console.WriteLine("Player {0} betting: ", (i + curBetting) % players.Count + 1);
-                        cash += await players[(i + curBetting) % players.Count].DoBet(minBet);
-                        if (OnTurnMade != null)
-                            OnTurnMade.Invoke(this, new TurnArgs(players[(i + curBetting) % players.Count], (i + curBetting) % players.Count));
+                        int prevBet = players[(i + curBetting) % players.Count].bet;
+                        int diff = minBet;
+                        int bet = await players[(i + curBetting) % players.Count].DoBet(minBet);
+                        if (minBet == bet)
+                            diff = -2;
+                        else if (prevBet == players[(i + curBetting) % players.Count].bet)
+                            diff = 0;
+                        else
+                            diff = players[(i + curBetting) % players.Count].bet - minBet;
+
+                        cash += bet;
                         if (players[(i + curBetting) % players.Count].bet == -1)
+                        {
                             countInGame--;
+                            diff = -1;
+                        }
+
+                        if (OnTurnMade != null)
+                            OnTurnMade.Invoke(this, new TurnArgs(players[(i + curBetting) % players.Count], (i + curBetting) % players.Count, diff));
+
                         if (countInGame == 1)
                             break;
                         if (players[(i + curBetting) % players.Count].bet > minBet)
@@ -112,7 +156,6 @@ namespace OpenPoker.GameEngine
                             curBetting = (i + curBetting + 1) % players.Count;
                             PrintState();
                             i = 0;
-                            l = players.Count - 1;
                             continue;
                         }
                         PrintState();
@@ -121,6 +164,7 @@ namespace OpenPoker.GameEngine
                 }
                 curBetting = (i + curBetting) % players.Count;
 
+                            l = players.Count - 1;
                 if (countInGame == 1)
                 {
                     Player winner;
@@ -148,12 +192,19 @@ namespace OpenPoker.GameEngine
                     cards.Add(deck.Pop());
                     cards.Add(deck.Pop());
                     cards.Add(deck.Pop());
+                    await Task.Delay(1000);
+                    if (OnGameCycle != null)
+                        OnGameCycle.Invoke(this, new EventArgs());
+
                     ShowCards();
                     curCycle++;
                 }
                 else if (curCycle == 1 || curCycle == 2)
                 {
                     cards.Add(deck.Pop());
+                    await Task.Delay(1000);
+                    if (OnGameCycle != null)
+                        OnGameCycle.Invoke(this, new EventArgs());
                     ShowCards();
                     curCycle++;
                 }
@@ -336,13 +387,18 @@ namespace OpenPoker.GameEngine
             int max = playerStats.Max(x => x.Value.Item1);
             var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
             ShowCards();
+            List<int> wins = new List<int>();
             foreach (KeyValuePair<Player, (int, int)> kvp in winners)
             {
                 Player p = kvp.Key;
-                Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
+                wins.Add(kvp.Value.Item2);
+                //Console.WriteLine("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
             }
+            if (OnWinnersCalc != null)
+                OnWinnersCalc.Invoke(this, new EndArgs(wins));
             //Console.ReadKey();
         }
+        public EventHandler<EndArgs> OnWinnersCalc;
         private void ShowCards()
         {
             Console.WriteLine("Shown cards:");

@@ -5,7 +5,7 @@ location.search.substr(1).split("&").forEach(function (item) { queryDict[item.sp
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/roomHub").build();
 
-connection.on("UpdatePlayer", function (players, deck) {
+connection.on("UpdateGame", function (players, deck) {
     //player state update
     for (var i = 0; i < players.length; i++) {
         document.querySelector("#player" + (i + 1) + " #bet").textContent = players[i].bet;
@@ -26,9 +26,20 @@ connection.on("UpdatePlayer", function (players, deck) {
         tag.setAttribute("src", GetImagePath(deck[i].rank, deck[i].suit));
         deckDom.appendChild(tag);
     }
-    
-
 });
+
+connection.on("UpdatePlayer", function (playerId, action) {
+    var tag = document.createElement("p");
+    var node = document.createTextNode(action);
+    tag.textContent = action;
+    tag.setAttribute("style", "text-align:center")
+    //document.querySelector("#player" + (playerId + 1) + " #bet").textContent = action;
+    document.querySelector("#player" + (playerId + 1)).appendChild(tag);
+    setTimeout(function () {
+        document.querySelector("#player" + (playerId + 1)).removeChild(document.querySelector("#player" + (playerId + 1)).lastChild);
+    }, 500);
+});
+
 
 function GetImagePath(rank, suit) {
     return "cards/" + RankToString(rank) + "_of_" + SuitToString(suit) + ".png";

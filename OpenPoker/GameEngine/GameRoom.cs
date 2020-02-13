@@ -12,11 +12,15 @@ namespace OpenPoker.GameEngine
         public List<Player> players { get; set; }
         public List<Card> deck { get; set; }
         public int roomId { get; set; }
-        public GameTurnArgs(List<Player> players, int roomId, List<Card> deck)
+        public int playerId { get; set; }
+        public string action { get; set; }
+        public GameTurnArgs(List<Player> players, int roomId, List<Card> deck, int playerId, string action)
         {
             this.players = players;
             this.roomId = roomId;
             this.deck = deck;
+            this.action = action;
+            this.playerId = playerId;
         }
     }
     public class GameRoom
@@ -28,7 +32,12 @@ namespace OpenPoker.GameEngine
         private void TurnHandler(object sender, TurnArgs args)
         {
             if (OnGameTurn != null)
-                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, id, game.cards));
+                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, id, game.cards, args.playerId, args.action ));
+        }
+        private void CycleHandler(object sender, EventArgs args)
+        {
+            if (OnGameTurn != null)
+                OnGameTurn.Invoke(this, new GameTurnArgs(game.players, id, game.cards, -1, "None"));
         }
         public GameRoom(string name, int id, Game game = null)
         {
@@ -38,7 +47,9 @@ namespace OpenPoker.GameEngine
             this.name = name;
             this.id = id;
             game.OnTurnMade += TurnHandler;
+            game.OnGameCycle += CycleHandler;
             game.Start();
+
         }
     }
 }
