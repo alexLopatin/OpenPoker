@@ -5,11 +5,16 @@ using System.Threading.Tasks;
 
 namespace OpenPoker.GameEngine
 {
-    public class Player : IPlayer
+    public class BotPlayer : IPlayer
     {
+        public int Id { get; private set; }
         public bool IsDisconnected { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
+        public BotPlayer(int id)
+        {
+            Id = id;
+        }
         public async Task<int> DoBet(int minBet)
         {
             //int nb = Int32.Parse(Console.ReadLine());

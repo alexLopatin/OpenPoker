@@ -22,7 +22,7 @@ namespace OpenPoker.GameEngine
             updateComposer = new UpdateComposer(this);
             players = new List<IPlayer>();
             for (int i = 0; i < 4; i++)
-                players.Add(new Player());
+                players.Add(new BotPlayer(i));
         }
         private void PrintState()
         {
@@ -117,7 +117,7 @@ namespace OpenPoker.GameEngine
                             diff = -1;
                         }
                         if (OnGameUpdate != null)
-                            OnGameUpdate.Invoke(this, updateComposer.UpdateOnlyOnePlayer((i + curBetting) % players.Count, diff));
+                            OnGameUpdate.Invoke(this, updateComposer.UpdateOnlyOnePlayer( players[ (i + curBetting) % players.Count].Id, diff));
 
 
                         if (countInGame == 1)
@@ -136,7 +136,7 @@ namespace OpenPoker.GameEngine
                 }
                 curBetting = (i + curBetting) % players.Count;
 
-                            l = players.Count - 1;
+                l = players.Count - 1;
                 if (countInGame == 1)
                 {
                     IPlayer winner;
@@ -146,10 +146,10 @@ namespace OpenPoker.GameEngine
                             winner = players[i];
                             break;
                         }
-                    string res = String.Format("Player {0} has won {1}$!", i, cash);
+                    string res = String.Format("Player {0} has won {1}$!", players[i].Id, cash);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
-                    Console.WriteLine("Player {0} has won {1}$!", i, cash);
+                    Console.WriteLine("Player {0} has won {1}$!", players[i].Id, cash);
                     await Task.Delay(5000);
                     foreach (IPlayer p in players)
                     {
@@ -367,7 +367,7 @@ namespace OpenPoker.GameEngine
 
             for (int i = 0; i < players.Count; i++)
                 if (players[i].bet != -1)
-                    playerStats[players[i]] = (CalculateCombination(players[i].cards), i + 1);
+                    playerStats[players[i]] = (CalculateCombination(players[i].cards), players[i].Id + 1);
 
             int max = playerStats.Max(x => x.Value.Item1);
             var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();

@@ -8,6 +8,7 @@ namespace OpenPoker.Models.Update
 {
     public class PlayerUpdateModel
     {
+        public bool IsEmpty { get; set; }
         public int Id { get; set; }
         public List<Card> Cards { get; set; }
         public int Bet { get; set; }
@@ -18,6 +19,11 @@ namespace OpenPoker.Models.Update
             Cards = cards;
             Bet = bet;
             Choice = choice;
+            IsEmpty = false;
+        }
+        public PlayerUpdateModel()
+        {
+            IsEmpty = true;
         }
     }
 }

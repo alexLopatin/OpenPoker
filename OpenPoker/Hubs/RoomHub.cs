@@ -34,7 +34,7 @@ namespace OpenPoker.Hubs
                     else
                     {
                         
-                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId);
+                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, room.GetNewIdPlayer());
                         p.bet = -1;
                         room.game.players.Add(p);
                     }
@@ -69,8 +69,9 @@ namespace OpenPoker.Hubs
                             return true;
                     return false;
                 });
-                if (player.GetPlayerBetTask.IsPending)
-                    player.GetPlayerBetTask.MessageReceived(-1);
+                if(player.GetPlayerBetTask != null)
+                    if (player.GetPlayerBetTask.IsPending)
+                        player.GetPlayerBetTask.MessageReceived(-1);
                 player.IsDisconnected = true;
                 player.bet = -1;
             }

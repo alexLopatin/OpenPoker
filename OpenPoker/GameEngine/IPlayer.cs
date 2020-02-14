@@ -7,6 +7,7 @@ namespace OpenPoker.GameEngine
 {
     public interface IPlayer
     {
+        public int Id { get; }
         public bool IsDisconnected { get; set; }
         public List<Card> cards { get; set; }
         public int bet { get; set; }

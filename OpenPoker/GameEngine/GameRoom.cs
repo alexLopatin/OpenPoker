@@ -18,6 +18,15 @@ namespace OpenPoker.GameEngine
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, args);
         }
+        public int GetNewIdPlayer()
+        {
+            int i = 0;
+            for (i = 0; i < 6; i++)
+                if (game.players.All(p => p.Id != i))
+                    break;
+            return i;
+        }
+
         public GameRoom(string name, int id, Game game = null)
         {
             if (game == null)
