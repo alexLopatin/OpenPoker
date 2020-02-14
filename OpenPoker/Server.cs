@@ -15,6 +15,7 @@ namespace OpenPoker
         public Task SendUpdateData(IClientProxy caller, int roomId);
         public Task Reject(IClientProxy caller);
         public Task SendBetQuery(string connectionId, int minBet);
+        public Task SendSetupData(IClientProxy caller, int id);
     }
     public class Server : IServer
     {
@@ -50,6 +51,11 @@ namespace OpenPoker
         {
             var client = HubContext.Clients.Client(connectionId);
             await client.SendAsync("DoBet", minBet);
+        }
+
+        public async Task SendSetupData(IClientProxy caller, int id)
+        {
+            await caller.SendAsync("SetupData", id);
         }
         public Server(IHubContext<RoomHub> hubContext)
         {

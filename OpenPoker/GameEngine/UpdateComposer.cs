@@ -25,7 +25,8 @@ namespace OpenPoker.GameEngine
             {
                 args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("UpdatePlayer", 
-                    new PlayerUpdateModel(game.players[i].Id, game.players[i].cards, game.players[i].bet)
+                    new PlayerUpdateModel(game.players[i].Id, game.players[i].cards, game.players[i].bet, 
+                    "None", game.players[i].IsDisconnected)
                     ));
             }
             args.ActionArgumentsPairs.Add(
@@ -49,7 +50,7 @@ namespace OpenPoker.GameEngine
             IPlayer p = game.players.Find(p => p.Id == id);
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("UpdatePlayer",
-                    new PlayerUpdateModel(id, p.cards, p.bet, choice)
+                    new PlayerUpdateModel(id, p.cards, p.bet, choice, p.IsDisconnected)
                     ));
             return args;
         }

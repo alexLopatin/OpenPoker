@@ -5,13 +5,21 @@ location.search.substr(1).split("&").forEach(function (item) { queryDict[item.sp
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/roomHub").build();
 
+var place = 4;
+
 connection.on("UpdatePlayer", function (args) {
+    var newId = (Math.abs(args.id + 6 - place + 3)) % 6;
+    document.querySelector("#player" + (newId + 1) + " #name").textContent = "Player " + (args.id + 1);
+    args.id = newId;
     document.querySelector("#player" + (args.id + 1) + " #bet").textContent = args.bet;
     var cards = document.querySelectorAll("#player" + (args.id + 1) + " #card");
     cards[0].src = GetImagePath(args.cards[0].rank, args.cards[0].suit);
     cards[1].src = GetImagePath(args.cards[1].rank, args.cards[1].suit);
     document.getElementById("table").removeAttribute("hidden");
-
+    if (!args.isDisconnected)
+        document.getElementById("player" + (args.id + 1)).removeAttribute("hidden");
+    else
+        document.getElementById("player" + (args.id + 1)).setAttribute("hidden", "hidden");
     var choice = args.choice;
     if (choice == "None")
         return;
@@ -54,6 +62,11 @@ connection.on("EndGameUpdate", function (args) {
 
 connection.on("Reject", function (reason) {
     alert(reason);
+});
+
+connection.on("SetupData", function (id) {
+    alert(id);
+    place = id;
 });
 
 connection.on("DoBet", function (minBet) {

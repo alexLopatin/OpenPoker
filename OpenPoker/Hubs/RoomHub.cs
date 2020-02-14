@@ -23,8 +23,10 @@ namespace OpenPoker.Hubs
                 await _server.Reject(Clients.Caller);
             else
             {
+                int newId = 0;
                 lock (room.game.players)
                 {
+                    newId = room.GetNewIdPlayer();
                     Context.Items["roomId"] = roomId;
                     if (player != null)
                     {
@@ -34,12 +36,14 @@ namespace OpenPoker.Hubs
                     else
                     {
                         
-                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, room.GetNewIdPlayer());
+                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, newId);
                         p.bet = -1;
                         room.game.players.Add(p);
                     }
                 }
+                
                 await Groups.AddToGroupAsync(Context.ConnectionId, "/room/" + roomId);
+                await _server.SendSetupData(Clients.Caller, newId);
                 await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId));
             }
         }
