@@ -14,6 +14,7 @@ namespace OpenPoker
         public void CreateGame(GameRoom room);
         public Task SendUpdateData(IClientProxy caller, int roomId);
         public Task Reject(IClientProxy caller);
+        public Task SendBetQuery(string connectionId, int minBet);
     }
     public class Server : IServer
     {
@@ -31,7 +32,6 @@ namespace OpenPoker
         
         public async Task SendUpdateData(IClientProxy caller, int roomId)
         {
-            
             var room = rooms.Find(p => p.id == roomId);
             var args = room.game.GetUpdateData();
             foreach (KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
@@ -45,10 +45,15 @@ namespace OpenPoker
         {
             rooms.Add(room);
             room.OnGameUpdate += SendPlayerState;
-
+        }
+        public async Task SendBetQuery(string connectionId, int minBet)
+        {
+            var client = HubContext.Clients.Client(connectionId);
+            await client.SendAsync("DoBet", minBet);
         }
         public Server(IHubContext<RoomHub> hubContext)
         {
+            
             HubContext = hubContext;
             //test rooms
             CreateGame(new GameRoom("First one", 1));

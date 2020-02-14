@@ -56,6 +56,24 @@ connection.on("Reject", function (reason) {
     alert(reason);
 });
 
+connection.on("DoBet", function (minBet) {
+    //MakeBet(minBet);
+    document.getElementById("menu").removeAttribute("hidden");
+    var rng = document.getElementById("betRange");
+    rng.setAttribute("min", minBet);
+    rng.setAttribute("max", minBet * 10);
+    rng.setAttribute("step", minBet);
+    updateText(minBet);
+});
+
+function MakeBet() {
+    var bet = document.getElementById("betText").textContent;
+    connection.invoke("MakeBet", bet).catch(function (err) {
+        return console.error(err.toString());
+    });
+    document.getElementById("menu").setAttribute("hidden", "hidden");
+}
+
 function GetImagePath(rank, suit) {
     return "cards/" + RankToString(rank) + "_of_" + SuitToString(suit) + ".png";
 }
@@ -108,3 +126,7 @@ connection.start().then(function () {
 }).catch(function (err) {
     return console.error(err.toString());
 });
+
+function updateText(val) {
+    document.getElementById("betText").textContent = val;
+}

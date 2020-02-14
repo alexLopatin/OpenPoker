@@ -45,6 +45,11 @@
                 <img src="~/cards/2_of_diamonds.png" id="card" />
             </div>
         </div>
+        <div id="menu" hidden="hidden">
+            <text id="betText">100</text>
+            <input type="range" min="100" max="1000" step="100" value="100" onchange="updateText(this.value);" id="betRange"/>
+            <button id="confirmBtn" onclick="MakeBet();">Send</button>
+        </div>
     </div>
 @section Scripts {
     <script src="~/js/RoomScript.js"></script>

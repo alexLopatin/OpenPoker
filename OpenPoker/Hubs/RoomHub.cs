@@ -33,7 +33,8 @@ namespace OpenPoker.Hubs
                     }
                     else
                     {
-                        IPlayer p = new NetworkPlayer(Context.ConnectionId);
+                        
+                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId);
                         p.bet = -1;
                         room.game.players.Add(p);
                     }
@@ -41,6 +42,18 @@ namespace OpenPoker.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, "/room/" + roomId);
                 await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId));
             }
+        }
+        public async Task MakeBet(string bet)
+        {
+            string roomId = Context.Items["roomId"] as string;
+            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            var player = (NetworkPlayer)room.game.players.Find(p => {
+                if (p is NetworkPlayer)
+                    if (((NetworkPlayer)p).ConnectionId == Context.ConnectionId)
+                        return true;
+                return false;
+            });
+            player.MessageReceived(Int32.Parse(bet));
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
