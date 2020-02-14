@@ -18,17 +18,11 @@ namespace OpenPoker.GameEngine
         public bool IsDisconnected { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
-        TaskCompletionSource<int> tcs = null;
-        public void MessageReceived(int bet)
-        {
-            tcs?.TrySetResult(bet);
-        }
+        public RequestResponseTask<int> GetPlayerBetTask;
         public async Task<int> DoBet(int minBet)
         {
-            await _server.SendBetQuery(ConnectionId, minBet);
-            tcs = new TaskCompletionSource<int>();
-            int nb = await tcs.Task;
-            tcs = null;
+            GetPlayerBetTask = new RequestResponseTask<int>(_server.SendBetQuery(ConnectionId, minBet));
+            int nb = await GetPlayerBetTask.Run();
             if (nb == -1)
             {
                 bet = -1;

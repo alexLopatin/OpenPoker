@@ -53,7 +53,7 @@ namespace OpenPoker.Hubs
                         return true;
                 return false;
             });
-            player.MessageReceived(Int32.Parse(bet));
+            player.GetPlayerBetTask.MessageReceived(Int32.Parse(bet));
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
@@ -63,12 +63,14 @@ namespace OpenPoker.Hubs
             var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
             lock (room.game.players)
             {
-                var player = room.game.players.Find(p => {
+                var player = (NetworkPlayer)room.game.players.Find(p => {
                     if (p is NetworkPlayer)
                         if (((NetworkPlayer)p).ConnectionId == Context.ConnectionId)
                             return true;
                     return false;
                 });
+                if (player.GetPlayerBetTask.IsPending)
+                    player.GetPlayerBetTask.MessageReceived(-1);
                 player.IsDisconnected = true;
                 player.bet = -1;
             }

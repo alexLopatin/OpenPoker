@@ -63,6 +63,7 @@ connection.on("DoBet", function (minBet) {
     rng.setAttribute("min", minBet);
     rng.setAttribute("max", minBet * 10);
     rng.setAttribute("step", minBet);
+    rng.setAttribute("value", minBet);
     updateText(minBet);
 });
 
