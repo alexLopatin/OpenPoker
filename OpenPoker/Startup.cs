@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OpenPoker.GameEngine;
 using OpenPoker.Hubs;
+using Microsoft.AspNetCore.Identity;
+using OpenPoker.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using OpenPoker.Models;
 
 namespace OpenPoker
 {
@@ -28,6 +31,12 @@ namespace OpenPoker
             services.AddControllersWithViews();
             services.AddSignalR();
             services.AddSingleton<IServer, Server>();
+            services.AddDbContext<ApplicationContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationContext>();
+            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,8 +57,8 @@ namespace OpenPoker
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

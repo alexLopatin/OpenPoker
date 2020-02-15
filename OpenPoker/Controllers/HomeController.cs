@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OpenPoker.Models;
 using OpenPoker.GameEngine;
+using OpenPoker.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace OpenPoker.Controllers
 {
@@ -19,10 +21,19 @@ namespace OpenPoker.Controllers
             _server = server;
             _logger = logger;
         }
+        
+        private const int countOfRoomsOnPage = 30;
 
-        public IActionResult Index()
+        public IActionResult Index(int page)
         {
-            return View(_server.rooms);
+            int countOfPages = (int)Math.Ceiling((double)_server.rooms.Count / countOfRoomsOnPage);
+            if (page <= 0 || page > Math.Ceiling((double) _server.rooms.Count/countOfRoomsOnPage))
+                return View( new RoomsList( _server.rooms.GetRange(0, countOfRoomsOnPage), countOfPages));
+            page--;
+            return View( new RoomsList( _server.rooms.GetRange(page * countOfRoomsOnPage,
+                (page + 1)*countOfRoomsOnPage <= _server.rooms.Count ?
+                countOfRoomsOnPage : (_server.rooms.Count - (page) * countOfRoomsOnPage))
+                , countOfPages));
         }
 
         public IActionResult Privacy()

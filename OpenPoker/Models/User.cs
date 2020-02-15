@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNetCore.Identity;
 
 namespace OpenPoker.Models
 {
     public class User : IdentityUser
     {
+        public int YearBorn { get; set; }
     }
 }

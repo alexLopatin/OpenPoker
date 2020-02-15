@@ -1,6 +1,6 @@
 ﻿@using OpenPoker.Controllers
 @using OpenPoker.GameEngine
-@model IEnumerable<GameRoom>
+@model RoomsList
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -11,13 +11,21 @@
         <tr><th>Name</th><th>Game Cycle</th> <th>Players</th></tr>
     </thead>
     <tbody>
-        @foreach (GameRoom room in Model)
+        @foreach (GameRoom room in Model.Rooms)
         {
             <tr>
                 <td>@Html.ActionLink(room.name, "Index", "Room", new { roomId = room.id })</td>
                 <td>@room.game.curCycle</td>
-                <td>@room.game.players.Count( p => !p.IsDisconnected)/@Game.MAX_PLAYER_COUNT</td>
+                <td>@room.game.players.Count(p => !p.IsDisconnected)/@Game.MAX_PLAYER_COUNT</td>
             </tr>
         }
     </tbody>
 </table>
+<div style="margin: 5px">
+    <div style="display:inline">Pages:</div>
+    @for (int i = 1; i <= Model.CountOfPages; i++)
+    {
+        <div style="display:inline">@Html.ActionLink(i.ToString(), "Index", "Home", new { page = i })</div>
+    }
+</div>
+

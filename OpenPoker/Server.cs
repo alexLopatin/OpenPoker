@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace OpenPoker
 {
@@ -19,6 +20,7 @@ namespace OpenPoker
     }
     public class Server : IServer
     {
+        private readonly int maxCountOfRooms = int.MaxValue;
         public List<GameRoom> rooms { get; private set; } = new List<GameRoom>();
         private IHubContext<RoomHub> HubContext { get; set; }
         public void SendPlayerState(object sender, GameUpdateArgs args)
@@ -54,9 +56,15 @@ namespace OpenPoker
         }
         public void CreateGame(GameRoom room)
         {
-            rooms.Add(room);
-            room.OnGameUpdate += SendPlayerState;
-            room.OnGameClose += GameRoomClose;
+            if (rooms.Count < maxCountOfRooms)
+            {
+                rooms.Add(room);
+                room.OnGameUpdate += SendPlayerState;
+                room.OnGameClose += GameRoomClose;
+            }
+            //else
+            //    throw new Exception("Count of rooms reached its maximum");
+            
         }
         public async Task SendBetQuery(string connectionId, int minBet)
         {
@@ -70,13 +78,30 @@ namespace OpenPoker
         }
         public Server(IHubContext<RoomHub> hubContext)
         {
-            
+            XmlDocument settings = new XmlDocument();
+            settings.Load("Server.xml");
+            XmlElement xRoot = settings.DocumentElement;
+            if(xRoot.Name == "Server.Configuration")
+            {
+                foreach(XmlNode xnode in xRoot)
+                {
+                    if(xnode.Name == "Room.Settings")
+                    {
+                        foreach (XmlNode roomSettingsNode in xnode)
+                        {
+                            if (roomSettingsNode.Name == "MaxCount")
+                                maxCountOfRooms = int.Parse(roomSettingsNode.InnerText);
+                        }
+                    }
+                }
+            }
+
             HubContext = hubContext;
             //test rooms
             //CreateGame(new GameRoom("First one", 1));
             //CreateGame(new GameRoom("Second one", 2));
             //CreateGame(new GameRoom("Third one", 3));
-            for(int i = 1; i <= 1000; i++)
+            for(int i = 1; i <= 100; i++)
                 CreateGame(new GameRoom("Room #" + i.ToString(), i));
         }
     }
