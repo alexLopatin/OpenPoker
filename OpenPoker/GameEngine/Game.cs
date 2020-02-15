@@ -21,7 +21,8 @@ namespace OpenPoker.GameEngine
             cancellation = tokenSource.Token;
             updateComposer = new UpdateComposer(this);
             players = new List<IPlayer>();
-            for (int i = 0; i < 4; i++)
+            Random rand = new Random();
+            for (int i = 0; i < 5; i++)
                 players.Add(new BotPlayer(i));
         }
         private void PrintState()
@@ -37,6 +38,12 @@ namespace OpenPoker.GameEngine
             }
         }
         public EventHandler<GameUpdateArgs> OnGameUpdate;
+        public EventHandler<GameUpdateArgs> OnGameClose;
+        public enum GameState
+        {
+            Lobby, Started, Ended
+        }
+        public GameState state = GameState.Lobby;
         /// <summary>
         /// Only call on IServer instance
         /// </summary>
@@ -58,8 +65,23 @@ namespace OpenPoker.GameEngine
                 if (cancellation.IsCancellationRequested)
                 {
                     Console.WriteLine("Shutting down...");
+                    if (OnGameClose != null)
+                        OnGameClose.Invoke(this, updateComposer.GameClose("External close"));
                     break;
                 }
+                if(players.Count == 0)
+                {
+                    if (OnGameClose != null)
+                        OnGameClose.Invoke(this, updateComposer.GameClose("No players"));
+                    break;
+                }
+                if(players.Count == 1 && curCycle == 0)
+                {
+                    await Task.Delay(1000);
+                    countInGame = players.Count;
+                    continue;
+                }
+                state = GameState.Started;
                 //Debug.WriteLine("Current cycle is " + curCycle.ToString());
                 if (curCycle == 0)
                 {
@@ -151,7 +173,7 @@ namespace OpenPoker.GameEngine
                             winner = players[i];
                             break;
                         }
-                    string res = String.Format("Player {0} has won {1}$!", players[i].Id, cash);
+                    string res = String.Format("Player {0} has won {1}$!", players[i].Id + 1, cash);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
                     Console.WriteLine("Player {0} has won {1}$!", players[i].Id, cash);
@@ -191,6 +213,7 @@ namespace OpenPoker.GameEngine
                 else
                 {
                     FindWinner(cash);
+                    state = GameState.Ended;
                     await Task.Delay(5000);
                     foreach (IPlayer p in players)
                             if (p.IsDisconnected)
@@ -210,6 +233,7 @@ namespace OpenPoker.GameEngine
                     cash = 0;
                     Console.WriteLine("EndGame");
                     countInGame = players.Count;
+                    state = GameState.Lobby;
                 }
             }
         }

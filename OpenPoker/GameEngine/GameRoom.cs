@@ -13,6 +13,7 @@ namespace OpenPoker.GameEngine
         public string name;
         public int id;
         public EventHandler<GameUpdateArgs> OnGameUpdate;
+        public EventHandler<GameUpdateArgs> OnGameClose;
         private void TurnHandler(object sender, GameUpdateArgs args)
         {
             if (OnGameUpdate != null)
@@ -26,7 +27,11 @@ namespace OpenPoker.GameEngine
                     break;
             return i;
         }
-
+        private void CloseHandler(object sender, GameUpdateArgs args)
+        {
+            if (OnGameClose != null)
+                OnGameClose.Invoke(this, args);
+        }
         public GameRoom(string name, int id, Game game = null)
         {
             if (game == null)
@@ -35,6 +40,7 @@ namespace OpenPoker.GameEngine
             this.name = name;
             this.id = id;
             game.OnGameUpdate += TurnHandler;
+            game.OnGameClose += CloseHandler;
             game.Start();
         }
     }

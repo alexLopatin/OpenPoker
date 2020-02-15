@@ -35,7 +35,12 @@ namespace OpenPoker
                         .SendAsync(kvp.Key.Name, kvp.Value);
             }
         }
-        
+
+        public void GameRoomClose(object sender, GameUpdateArgs args)
+        {
+            lock (rooms)
+                rooms.Remove(sender as GameRoom);
+        }
         public async Task SendUpdateData(IClientProxy caller, int roomId)
         {
             var room = rooms.Find(p => p.id == roomId);
@@ -51,6 +56,7 @@ namespace OpenPoker
         {
             rooms.Add(room);
             room.OnGameUpdate += SendPlayerState;
+            room.OnGameClose += GameRoomClose;
         }
         public async Task SendBetQuery(string connectionId, int minBet)
         {
@@ -67,9 +73,11 @@ namespace OpenPoker
             
             HubContext = hubContext;
             //test rooms
-            CreateGame(new GameRoom("First one", 1));
-            CreateGame(new GameRoom("Second one", 2));
-            CreateGame(new GameRoom("Third one", 3));
+            //CreateGame(new GameRoom("First one", 1));
+            //CreateGame(new GameRoom("Second one", 2));
+            //CreateGame(new GameRoom("Third one", 3));
+            for(int i = 1; i <= 1000; i++)
+                CreateGame(new GameRoom("Room #" + i.ToString(), i));
         }
     }
 }

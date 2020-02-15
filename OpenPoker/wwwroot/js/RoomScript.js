@@ -99,6 +99,9 @@ function Fold() {
     connection.invoke("MakeBet", "-1").catch(function (err) {
         return console.error(err.toString());
     });
+    var cards = document.querySelectorAll("#player" + (4) + " #card");
+    cards[0].src = "cards/back.png";
+    cards[1].src = "cards/back.png";
     document.getElementById("menu").setAttribute("hidden", "hidden");
 
 }

@@ -38,7 +38,7 @@ namespace OpenPoker.GameEngine
 
                 //Personal update for specific user (i.e. showing only his cards)
                 //Happen only once when player gets his cards
-                if(game.players[i] is NetworkPlayer)
+                if(game.players[i] is NetworkPlayer && game.players[i].bet != -1)
                 {
                     var netPlayer = game.players[i] as NetworkPlayer;
                     args.ActionArgumentsPairs.Add(
@@ -89,6 +89,17 @@ namespace OpenPoker.GameEngine
                     new KeyValuePair<Action, object>(
                         new Action("EndGameUpdate"),
                     new EndGameUpdateModel(final)
+                    ));
+            return args;
+        }
+        public GameUpdateArgs GameClose(string reason)
+        {
+            GameUpdateArgs args = new GameUpdateArgs();
+
+            args.ActionArgumentsPairs.Add(
+                    new KeyValuePair<Action, object>(
+                        new Action("GameClose"),
+                    reason
                     ));
             return args;
         }

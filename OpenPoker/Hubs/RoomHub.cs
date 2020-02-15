@@ -38,7 +38,10 @@ namespace OpenPoker.Hubs
                     {
                         
                         IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, newId);
-                        p.bet = -1;
+                        if (room.game.state == Game.GameState.Lobby)
+                            p.bet = 0;
+                        else
+                            p.bet = -1;
                         room.game.players.Add(p);
                         room.game.players.Sort((x, y) => x.Id.CompareTo(y.Id));
                     }
