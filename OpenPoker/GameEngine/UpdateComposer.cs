@@ -8,7 +8,7 @@ namespace OpenPoker.GameEngine
 {
     public class GameUpdateArgs
     {
-        public List<KeyValuePair <string, object>> ActionArgumentsPairs { get; set; } = new List<KeyValuePair<string, object>>();
+        public List<KeyValuePair <Action, object>> ActionArgumentsPairs { get; set; } = new List<KeyValuePair<Action, object>>();
     }
     public class UpdateComposer
     {
@@ -30,7 +30,8 @@ namespace OpenPoker.GameEngine
                 else
                     cards = new List<Card>();
                 args.ActionArgumentsPairs.Add(
-                    new KeyValuePair<string, object>("UpdatePlayer", 
+                    new KeyValuePair<Action, object>(
+                        new Action("UpdatePlayer"), 
                     new PlayerUpdateModel(game.players[i].Id, cards, game.players[i].bet, 
                     "None", game.players[i].IsDisconnected)
                     ));
@@ -40,20 +41,17 @@ namespace OpenPoker.GameEngine
                 if(game.players[i] is NetworkPlayer)
                 {
                     var netPlayer = game.players[i] as NetworkPlayer;
-                    List<object> playerParams = new List<object>();
-                    playerParams.Add(netPlayer.ConnectionId);
-                    playerParams.Add(new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet,
-                        "None", netPlayer.IsDisconnected));
                     args.ActionArgumentsPairs.Add(
-                        new KeyValuePair<string, object>("Player#" + "UpdatePlayer",
-                        playerParams
+                        new KeyValuePair<Action, object>(
+                            new Action("UpdatePlayer", netPlayer.ConnectionId),
+                        new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet,
+                        "None", netPlayer.IsDisconnected)
                         ));
                 }
-                
-
             }
             args.ActionArgumentsPairs.Add(
-                    new KeyValuePair<string, object>("UpdateTable",
+                    new KeyValuePair<Action, object>(
+                        new Action("UpdateTable"),
                     new TableUpdateModel(game.cards)
                     ));
             return args;
@@ -77,7 +75,8 @@ namespace OpenPoker.GameEngine
             else
                 cards = new List<Card>();
             args.ActionArgumentsPairs.Add(
-                    new KeyValuePair<string, object>("UpdatePlayer",
+                    new KeyValuePair<Action, object>(
+                        new Action("UpdatePlayer"),
                     new PlayerUpdateModel(id, cards, p.bet, choice, p.IsDisconnected)
                     ));
             return args;
@@ -87,7 +86,8 @@ namespace OpenPoker.GameEngine
             GameUpdateArgs args = UpdateAll(true);
 
             args.ActionArgumentsPairs.Add(
-                    new KeyValuePair<string, object>("EndGameUpdate",
+                    new KeyValuePair<Action, object>(
+                        new Action("EndGameUpdate"),
                     new EndGameUpdateModel(final)
                     ));
             return args;
@@ -96,7 +96,8 @@ namespace OpenPoker.GameEngine
         {
             GameUpdateArgs args = new GameUpdateArgs();
             args.ActionArgumentsPairs.Add(
-                    new KeyValuePair<string, object>("UpdateTable",
+                    new KeyValuePair<Action, object>(
+                        new Action("UpdateTable"),
                     new TableUpdateModel(game.cards)
                     ));
             return args;

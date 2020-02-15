@@ -24,20 +24,15 @@ namespace OpenPoker
         public void SendPlayerState(object sender, GameUpdateArgs args)
         {
             var room = (GameRoom)sender;
-            foreach(KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
+            foreach(KeyValuePair<GameEngine.Action, object> kvp in args.ActionArgumentsPairs)
             {
-                if (kvp.Key.StartsWith("Player#"))
+                if (kvp.Key.IsPersonal)
                 {
-                    List<object> playerParams = kvp.Value as List<object>;
-                    string connectionId = playerParams[0] as string;
-                    object playerArgs = playerParams[1];
-                    string action = kvp.Key.Remove(0, 7);
-                    if(connectionId != null)
-                        HubContext.Clients.Client(connectionId).SendAsync(action, playerArgs);
+                    HubContext.Clients.Client(kvp.Key.ConnectionId).SendAsync(kvp.Key.Name, kvp.Value);
                 }
                 else
                     HubContext.Clients.Group("/room/" + room.id.ToString())
-                        .SendAsync(kvp.Key, kvp.Value);
+                        .SendAsync(kvp.Key.Name, kvp.Value);
             }
         }
         
@@ -45,8 +40,8 @@ namespace OpenPoker
         {
             var room = rooms.Find(p => p.id == roomId);
             var args = room.game.GetUpdateData();
-            foreach (KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
-                await caller.SendAsync(kvp.Key, kvp.Value);
+            foreach (KeyValuePair<GameEngine.Action, object> kvp in args.ActionArgumentsPairs)
+                await caller.SendAsync(kvp.Key.Name, kvp.Value);
         }
         public async Task Reject(IClientProxy caller)
         {
