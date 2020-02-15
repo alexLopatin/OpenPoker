@@ -73,25 +73,30 @@ namespace OpenPoker.GameEngine
                         p.bet = 0;
                     }
                     curBlind++;
-                    if (curBlind == players.Count)
-                        curBlind = 0;
+                    if (curBlind >= players.Count)
+                        curBlind = curBlind % players.Count;
                     if (curBlind == 0)
                     {
-                        curBlind = 0;
                         players[0].bet = 100;
                         players[players.Count - 1].bet = 50;
                     }
                     else
                     {
                         players[curBlind].bet = 100;
-                        players[curBlind - 1].bet = 50;
+                        players[(curBlind - 1)].bet = 50;
+                        //players[curBlind % players.Count].bet = 100;
+                        //players[(curBlind - 1) % players.Count].bet = 50;
                     }
                     PrintState();
                     curBetting = curBlind;
                     minBet = 100;
                     cash += 150;
                     if (OnGameUpdate != null)
+                    {
                         OnGameUpdate.Invoke(this, updateComposer.UpdateAll());
+                    }
+                        
+
                 }
 
                 int i = 0;

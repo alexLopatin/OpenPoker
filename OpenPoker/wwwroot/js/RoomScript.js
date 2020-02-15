@@ -13,8 +13,11 @@ connection.on("UpdatePlayer", function (args) {
     args.id = newId;
     document.querySelector("#player" + (args.id + 1) + " #bet").textContent = args.bet;
     var cards = document.querySelectorAll("#player" + (args.id + 1) + " #card");
-    cards[0].src = GetImagePath(args.cards[0].rank, args.cards[0].suit);
-    cards[1].src = GetImagePath(args.cards[1].rank, args.cards[1].suit);
+    if (args.cards.length > 0) {
+        cards[0].src = GetImagePath(args.cards[0].rank, args.cards[0].suit);
+        cards[1].src = GetImagePath(args.cards[1].rank, args.cards[1].suit);
+    }
+    
     document.getElementById("table").removeAttribute("hidden");
     if (!args.isDisconnected)
         document.getElementById("player" + (args.id + 1)).removeAttribute("hidden");
@@ -56,6 +59,11 @@ connection.on("EndGameUpdate", function (args) {
     endText.textContent = args.final;
     setTimeout(function () {
         endText.textContent = "";
+        for (var i = 0; i < 6; i++) {
+            var cards = document.querySelectorAll("#player" + (i + 1) + " #card");
+            cards[0].src = "cards/back.png";
+            cards[1].src = "cards/back.png";
+        }
     }, 4000);
     document.getElementById("table").removeAttribute("hidden");
 });
@@ -65,7 +73,6 @@ connection.on("Reject", function (reason) {
 });
 
 connection.on("SetupData", function (id) {
-    alert(id);
     place = id;
 });
 
@@ -86,6 +93,14 @@ function MakeBet() {
         return console.error(err.toString());
     });
     document.getElementById("menu").setAttribute("hidden", "hidden");
+}
+
+function Fold() {
+    connection.invoke("MakeBet", "-1").catch(function (err) {
+        return console.error(err.toString());
+    });
+    document.getElementById("menu").setAttribute("hidden", "hidden");
+
 }
 
 function GetImagePath(rank, suit) {

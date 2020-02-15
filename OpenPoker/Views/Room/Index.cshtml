@@ -4,51 +4,52 @@
             <p id="endResult"></p>
             <div class="player" id="player1" hidden="hidden">
                 <p style="text-align:center" id="name">Player 1</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
                 
             </div>
             <div class="player" id="player2" hidden="hidden">
                 <p style="text-align:center" id="name">Player 2</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
             </div>
             <div class="player" id="player3" hidden="hidden">
                 <p style="text-align:center" id="name">Player 3</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
             </div>
             <div class="player" id="player4" hidden="hidden">
                 <p style="text-align:center" id="name">Player 4</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
             </div>
             <div class="player" id="player5" hidden="hidden">
                 <p style="text-align:center" id="name">Player 5</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
             </div>
             <div class="player" id="player6" hidden="hidden">
                 <p style="text-align:center" id="name">Player 6</p>
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
                 <p style="text-align:center" id="bet">0</p>
             </div>
             <div class="player" id="deck">
-                <img src="~/cards/10_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_clubs.png" id="card" />
-                <img src="~/cards/2_of_diamonds.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
+                <img src="~/cards/back.png" id="card" />
             </div>
         </div>
         <div id="menu" hidden="hidden">
             <text id="betText">100</text>
-            <input type="range" min="100" max="1000" step="100" value="100" onchange="updateText(this.value);" id="betRange"/>
+            <input type="range" min="100" max="1000" step="100" value="100" onchange="updateText(this.value);" id="betRange" />
             <button id="confirmBtn" onclick="MakeBet();">Send</button>
+            <button onclick="Fold();">Fold</button>
         </div>
     </div>
 @section Scripts {

@@ -31,6 +31,7 @@ namespace OpenPoker.Hubs
                     if (player != null)
                     {
                         player.ConnectionId = Context.ConnectionId;
+                        newId = player.Id;
                         player.IsDisconnected = false;
                     }
                     else
@@ -39,6 +40,7 @@ namespace OpenPoker.Hubs
                         IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, newId);
                         p.bet = -1;
                         room.game.players.Add(p);
+                        room.game.players.Sort((x, y) => x.Id.CompareTo(y.Id));
                     }
                 }
                 

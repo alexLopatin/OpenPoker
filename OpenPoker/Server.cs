@@ -26,8 +26,18 @@ namespace OpenPoker
             var room = (GameRoom)sender;
             foreach(KeyValuePair<string, object> kvp in args.ActionArgumentsPairs)
             {
-                HubContext.Clients.Group("/room/" + room.id.ToString())
-                    .SendAsync(kvp.Key, kvp.Value);
+                if (kvp.Key.StartsWith("Player#"))
+                {
+                    List<object> playerParams = kvp.Value as List<object>;
+                    string connectionId = playerParams[0] as string;
+                    object playerArgs = playerParams[1];
+                    string action = kvp.Key.Remove(0, 7);
+                    if(connectionId != null)
+                        HubContext.Clients.Client(connectionId).SendAsync(action, playerArgs);
+                }
+                else
+                    HubContext.Clients.Group("/room/" + room.id.ToString())
+                        .SendAsync(kvp.Key, kvp.Value);
             }
         }
         

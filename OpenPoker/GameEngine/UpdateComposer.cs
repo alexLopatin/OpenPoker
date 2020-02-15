@@ -18,16 +18,39 @@ namespace OpenPoker.GameEngine
         {
             this.game = game;
         }
-        public GameUpdateArgs UpdateAll()
+        public GameUpdateArgs UpdateAll(bool showCards = false)
         {
             GameUpdateArgs args = new GameUpdateArgs();
             for(int i = 0; i < game.players.Count; i++)
             {
+                List<Card> cards;
+                //don't show players' cards who folded
+                if (showCards && game.players[i].bet != -1)
+                    cards = game.players[i].cards;
+                else
+                    cards = new List<Card>();
                 args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("UpdatePlayer", 
-                    new PlayerUpdateModel(game.players[i].Id, game.players[i].cards, game.players[i].bet, 
+                    new PlayerUpdateModel(game.players[i].Id, cards, game.players[i].bet, 
                     "None", game.players[i].IsDisconnected)
                     ));
+
+                //Personal update for specific user (i.e. showing only his cards)
+                //Happen only once when player gets his cards
+                if(game.players[i] is NetworkPlayer)
+                {
+                    var netPlayer = game.players[i] as NetworkPlayer;
+                    List<object> playerParams = new List<object>();
+                    playerParams.Add(netPlayer.ConnectionId);
+                    playerParams.Add(new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet,
+                        "None", netPlayer.IsDisconnected));
+                    args.ActionArgumentsPairs.Add(
+                        new KeyValuePair<string, object>("Player#" + "UpdatePlayer",
+                        playerParams
+                        ));
+                }
+                
+
             }
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("UpdateTable",
@@ -35,7 +58,7 @@ namespace OpenPoker.GameEngine
                     ));
             return args;
         }
-        public GameUpdateArgs UpdateOnlyOnePlayer(int id, int diff)
+        public GameUpdateArgs UpdateOnlyOnePlayer(int id, int diff, bool showCards = false)
         {
             string choice = "None";
             if (diff == -2)
@@ -48,15 +71,21 @@ namespace OpenPoker.GameEngine
                 choice = "Bet";
             GameUpdateArgs args = new GameUpdateArgs();
             IPlayer p = game.players.Find(p => p.Id == id);
+            List<Card> cards;
+            if (showCards)
+                cards = p.cards;
+            else
+                cards = new List<Card>();
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("UpdatePlayer",
-                    new PlayerUpdateModel(id, p.cards, p.bet, choice, p.IsDisconnected)
+                    new PlayerUpdateModel(id, cards, p.bet, choice, p.IsDisconnected)
                     ));
             return args;
         }
         public GameUpdateArgs EndGameUpdate(string final)
         {
-            GameUpdateArgs args = new GameUpdateArgs();
+            GameUpdateArgs args = UpdateAll(true);
+
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<string, object>("EndGameUpdate",
                     new EndGameUpdateModel(final)
