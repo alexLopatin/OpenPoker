@@ -32,7 +32,7 @@ namespace OpenPoker.GameEngine
                 args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("UpdatePlayer"), 
-                    new PlayerUpdateModel(game.players[i].Id, cards, game.players[i].bet, 
+                    new PlayerUpdateModel(game.players[i].Id, cards, game.players[i].bet, game.players[i].Name,
                     "None", game.players[i].IsDisconnected)
                     ));
 
@@ -44,7 +44,7 @@ namespace OpenPoker.GameEngine
                     args.ActionArgumentsPairs.Add(
                         new KeyValuePair<Action, object>(
                             new Action("UpdatePlayer", netPlayer.ConnectionId),
-                        new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet,
+                        new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet, game.players[i].Name,
                         "None", netPlayer.IsDisconnected)
                         ));
                 }
@@ -77,7 +77,7 @@ namespace OpenPoker.GameEngine
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("UpdatePlayer"),
-                    new PlayerUpdateModel(id, cards, p.bet, choice, p.IsDisconnected)
+                    new PlayerUpdateModel(id, cards, p.bet, p.Name, choice, p.IsDisconnected)
                     ));
             return args;
         }

@@ -2,43 +2,15 @@
     <div class="card" id="table" hidden="hidden">
         <div class="card-body">
             <p id="endResult"></p>
-            <div class="player" id="player1" hidden="hidden">
-                <p style="text-align:center" id="name">Player 1</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-                
-            </div>
-            <div class="player" id="player2" hidden="hidden">
-                <p style="text-align:center" id="name">Player 2</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-            </div>
-            <div class="player" id="player3" hidden="hidden">
-                <p style="text-align:center" id="name">Player 3</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-            </div>
-            <div class="player" id="player4" hidden="hidden">
-                <p style="text-align:center" id="name">Player 4</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-            </div>
-            <div class="player" id="player5" hidden="hidden">
-                <p style="text-align:center" id="name">Player 5</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-            </div>
-            <div class="player" id="player6" hidden="hidden">
-                <p style="text-align:center" id="name">Player 6</p>
-                <img src="~/cards/back.png" id="card" />
-                <img src="~/cards/back.png" id="card" />
-                <p style="text-align:center" id="bet">0</p>
-            </div>
+            @for (int i = 1; i <= 6; i++)
+            {
+                <div class="player" id=@("player" + i.ToString())  hidden="hidden">
+                    <p style="text-align:center" id="name">Player @i</p>
+                    <img src="~/cards/back.png" id="card" />
+                    <img src="~/cards/back.png" id="card" />
+                    <p style="text-align:center" id="bet">0</p>
+                </div>
+            }
             <div class="player" id="deck">
                 <img src="~/cards/back.png" id="card" />
                 <img src="~/cards/back.png" id="card" />

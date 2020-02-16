@@ -30,6 +30,9 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         @User.Identity.Name
+                    <form method="post" asp-controller="Account" asp-action="Logout">
+                        <input type="submit" value="Выйти" />
+                    </form>
                     }
                     else
                     {

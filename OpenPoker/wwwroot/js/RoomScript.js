@@ -17,7 +17,7 @@ connection.on("UpdatePlayer", function (args) {
         cards[0].src = GetImagePath(args.cards[0].rank, args.cards[0].suit);
         cards[1].src = GetImagePath(args.cards[1].rank, args.cards[1].suit);
     }
-    
+    document.querySelector("#player" + (args.id + 1) + " #name").textContent = args.name;
     document.getElementById("table").removeAttribute("hidden");
     if (!args.isDisconnected)
         document.getElementById("player" + (args.id + 1)).removeAttribute("hidden");

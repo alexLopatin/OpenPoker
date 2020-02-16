@@ -43,7 +43,7 @@ namespace OpenPoker.Hubs
                     else
                     {
                         
-                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, newId);
+                        IPlayer p = new NetworkPlayer(_server, Context.ConnectionId, newId, Context.User.Identity.Name);
                         if (room.game.state == Game.GameState.Lobby)
                             p.bet = 0;
                         else

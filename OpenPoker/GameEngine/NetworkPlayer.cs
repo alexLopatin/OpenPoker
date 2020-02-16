@@ -8,13 +8,15 @@ namespace OpenPoker.GameEngine
 {
     public class NetworkPlayer : IPlayer
     {
+        public string Name { get; private set; }
         public int Id { get; private set; }
         private readonly IServer _server;
-        public NetworkPlayer(IServer server, string connectionId, int id)
+        public NetworkPlayer(IServer server, string connectionId, int id, string name)
         {
             _server = server;
             ConnectionId = connectionId;
             Id = id;
+            Name = name;
         }
         public string ConnectionId {get;set;}
         public bool IsDisconnected { get; set; } = false;
