@@ -26,6 +26,17 @@
                         </li>
                     </ul>
                 </div>
+                <div style="margin: 5px">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @User.Identity.Name
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login">Вход</a>
+                        <a asp-controller="Account" asp-action="Register">Регистрация</a>
+                    }
+                </div>
             </div>
         </nav>
     </header>

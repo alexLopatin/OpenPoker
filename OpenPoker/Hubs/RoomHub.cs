@@ -13,6 +13,11 @@ namespace OpenPoker.Hubs
         private readonly IServer _server;
         public async Task JoinRoom(string roomId)
         {
+            if(!Context.User.Identity.IsAuthenticated)
+            {
+                await _server.RequireLogin(Clients.Caller);
+                return;
+            }
             var room = _server.rooms.Find( p=> p.id == Int32.Parse(roomId));
             NetworkPlayer player = (NetworkPlayer)room.game.players.Find(p => {
                 if (p is NetworkPlayer)

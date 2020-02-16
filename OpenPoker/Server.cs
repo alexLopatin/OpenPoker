@@ -17,6 +17,7 @@ namespace OpenPoker
         public Task Reject(IClientProxy caller);
         public Task SendBetQuery(string connectionId, int minBet);
         public Task SendSetupData(IClientProxy caller, int id);
+        public Task RequireLogin(IClientProxy caller);
     }
     public class Server : IServer
     {
@@ -42,6 +43,10 @@ namespace OpenPoker
         {
             lock (rooms)
                 rooms.Remove(sender as GameRoom);
+        }
+        public async Task RequireLogin(IClientProxy caller)
+        {
+            await caller.SendAsync("RedirectToLogin");
         }
         public async Task SendUpdateData(IClientProxy caller, int roomId)
         {
