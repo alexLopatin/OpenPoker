@@ -21,7 +21,7 @@ namespace OpenPoker
     }
     public class Server : IServer
     {
-        private readonly int maxCountOfRooms = int.MaxValue;
+        private int maxCountOfRooms = int.MaxValue;
         public List<GameRoom> rooms { get; private set; } = new List<GameRoom>();
         private IHubContext<RoomHub> HubContext { get; set; }
         public void SendPlayerState(object sender, GameUpdateArgs args)
@@ -81,16 +81,17 @@ namespace OpenPoker
         {
             await caller.SendAsync("SetupData", id);
         }
-        public Server(IHubContext<RoomHub> hubContext)
+
+        public void Configure()
         {
             XmlDocument settings = new XmlDocument();
             settings.Load("Server.xml");
             XmlElement xRoot = settings.DocumentElement;
-            if(xRoot.Name == "Server.Configuration")
+            if (xRoot.Name == "Server.Configuration")
             {
-                foreach(XmlNode xnode in xRoot)
+                foreach (XmlNode xnode in xRoot)
                 {
-                    if(xnode.Name == "Room.Settings")
+                    if (xnode.Name == "Room.Settings")
                     {
                         foreach (XmlNode roomSettingsNode in xnode)
                         {
@@ -100,12 +101,12 @@ namespace OpenPoker
                     }
                 }
             }
+        }
 
+        public Server(IHubContext<RoomHub> hubContext)
+        {
+            Configure();
             HubContext = hubContext;
-            //test rooms
-            //CreateGame(new GameRoom("First one", 1));
-            //CreateGame(new GameRoom("Second one", 2));
-            //CreateGame(new GameRoom("Third one", 3));
             for(int i = 1; i <= 100; i++)
                 CreateGame(new GameRoom("Room #" + i.ToString(), i));
         }

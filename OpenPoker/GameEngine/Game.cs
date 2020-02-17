@@ -173,7 +173,7 @@ namespace OpenPoker.GameEngine
                             winner = players[i];
                             break;
                         }
-                    string res = String.Format("Player {0} has won {1}$!", players[i].Id + 1, cash);
+                    string res = String.Format("Player {0} has won {1}$!", players[i].Name, cash);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
                     Console.WriteLine("Player {0} has won {1}$!", players[i].Id, cash);
@@ -392,20 +392,20 @@ namespace OpenPoker.GameEngine
         }
         private void FindWinner(int cash)
         {
-            Dictionary<IPlayer, (int, int)> playerStats = new Dictionary<IPlayer, (int, int)>();
+            Dictionary<IPlayer, int> playerStats = new Dictionary<IPlayer, int>();
 
             for (int i = 0; i < players.Count; i++)
                 if (players[i].bet != -1)
-                    playerStats[players[i]] = (CalculateCombination(players[i].cards), players[i].Id + 1);
+                    playerStats[players[i]] = CalculateCombination(players[i].cards);
 
-            int max = playerStats.Max(x => x.Value.Item1);
-            var winners = playerStats.Where(x => x.Value.Item1 == max).ToList();
+            int max = playerStats.Max(x => x.Value);
+            var winners = playerStats.Where(x => x.Value == max).ToList();
             ShowCards();
             string res = "";
-            foreach (KeyValuePair<IPlayer, (int, int)> kvp in winners)
+            foreach (KeyValuePair<IPlayer, int> kvp in winners)
             {
                 IPlayer p = kvp.Key;
-                res += String.Format("Player {0} has won {1}$ with a {2}!", kvp.Value.Item2, cash / winners.Count, IntCombToStr(kvp.Value.Item1));
+                res += String.Format("Player {0} has won {1}$ with a {2}!", p.Name, cash / winners.Count, IntCombToStr(kvp.Value));
             }
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));

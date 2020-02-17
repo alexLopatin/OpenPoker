@@ -7,7 +7,7 @@ namespace OpenPoker.GameEngine
 {
     public class BotPlayer : IPlayer
     {
-        public string Name { get { return "Bot"; } }
+        public string Name { get { return "Bot #" + (Id + 1).ToString(); } }
         public int Id { get; private set; }
         public bool IsDisconnected { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
