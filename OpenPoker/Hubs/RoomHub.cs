@@ -20,7 +20,7 @@ namespace OpenPoker.Hubs
                 return;
             }
             int newId = playerManager.AddNewPlayer(Context.ConnectionId, roomId, Context.User.Identity.Name);
-            if (newId > 0)
+            if (newId >= 0)
             {
                 Context.Items["roomId"] = roomId;
                 await Groups.AddToGroupAsync(Context.ConnectionId, "/room/" + roomId);
@@ -28,7 +28,7 @@ namespace OpenPoker.Hubs
                 await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId), false);
             }
             else
-                await _server.Reject(Clients.Caller);
+                await _server.Reject(Clients.Caller, "Room is full!");
 
         }
         public async Task MakeBet(string bet)
@@ -48,8 +48,14 @@ namespace OpenPoker.Hubs
         public async Task Kick(int id)
         {
             string roomId = Context.Items["roomId"] as string;
-            playerManager.Kick(id, roomId);
-            await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId), false);
+            string connId = playerManager.Kick(id, roomId);
+            if (connId != null)
+            {
+                await Groups.RemoveFromGroupAsync(connId, "/room/" + roomId);
+                await _server.Reject(Clients.Client(connId), "You've been kicked");
+            }
+                
+            await _server.SendUpdateData(Clients.All, Int32.Parse(roomId), false);
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
@@ -59,7 +65,7 @@ namespace OpenPoker.Hubs
                 await base.OnDisconnectedAsync(exception);
 
             playerManager.SetPlayerDisconnected(Context.ConnectionId, roomId);
-
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "/room/" + roomId);
             await _server.SendUpdateData(Clients.Others, Int32.Parse(roomId), false);
             await base.OnDisconnectedAsync(exception);
         }

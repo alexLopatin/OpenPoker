@@ -14,7 +14,7 @@ namespace OpenPoker
         public List<GameRoom> rooms { get; }
         public void CreateGame(GameRoom room);
         public Task SendUpdateData(IClientProxy caller, int roomId, bool showCards);
-        public Task Reject(IClientProxy caller);
+        public Task Reject(IClientProxy caller, string reason);
         public Task SendBetQuery(string connectionId, int minBet);
         public Task SendSetupData(IClientProxy caller, int id);
         public Task RequireLogin(IClientProxy caller);
@@ -52,12 +52,21 @@ namespace OpenPoker
         {
             var room = rooms.Find(p => p.id == roomId);
             var args = room.game.GetUpdateData(showCards);
+
             foreach (KeyValuePair<GameEngine.Action, object> kvp in args.ActionArgumentsPairs)
-                await caller.SendAsync(kvp.Key.Name, kvp.Value);
+            {
+                if (kvp.Key.IsPersonal)
+                {
+                    await HubContext.Clients.Client(kvp.Key.ConnectionId).SendAsync(kvp.Key.Name, kvp.Value);
+                }
+                else
+                    await HubContext.Clients.Group("/room/" + room.id.ToString())
+                        .SendAsync(kvp.Key.Name, kvp.Value);
+            }
         }
-        public async Task Reject(IClientProxy caller)
+        public async Task Reject(IClientProxy caller, string reason)
         {
-            await caller.SendAsync("Reject", "Room is full!");
+            await caller.SendAsync("Reject", reason);
         }
         public void CreateGame(GameRoom room)
         {

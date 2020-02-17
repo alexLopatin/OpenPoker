@@ -57,7 +57,6 @@ namespace OpenPoker.GameEngine
             int curBlind = -1;
             int curBetting = 0;
             int minBet = 0;
-            int countInGame = players.Count;
             Deck deck = new Deck();
             int cash = 0;
             while (true)
@@ -78,7 +77,6 @@ namespace OpenPoker.GameEngine
                 if(players.Count == 1 && curCycle == 0)
                 {
                     await Task.Delay(1000);
-                    countInGame = players.Count;
                     continue;
                 }
                 state = GameState.Started;
@@ -139,15 +137,12 @@ namespace OpenPoker.GameEngine
                             diff = -2;
                         cash += bet;
                         if (players[(i + curBetting) % players.Count].bet == -1)
-                        {
-                            countInGame--;
                             diff = -1;
-                        }
                         if (OnGameUpdate != null)
                             OnGameUpdate.Invoke(this, updateComposer.UpdateOnlyOnePlayer( players[ (i + curBetting) % players.Count].Id, diff));
 
 
-                        if (countInGame == 1)
+                        if (players.LongCount( p =>p.bet != -1) == 1)
                             break;
                         if (players[(i + curBetting) % players.Count].bet > minBet)
                         {
@@ -164,7 +159,7 @@ namespace OpenPoker.GameEngine
                 curBetting = (i + curBetting) % players.Count;
 
                 l = players.Count - 1;
-                if (countInGame == 1)
+                if (players.LongCount(p => p.bet != -1) == 1)
                 {
                     IPlayer winner;
                     for (i = 0; i < players.Count; i++)
@@ -186,7 +181,7 @@ namespace OpenPoker.GameEngine
                     cards.Clear();
                     curCycle = 0;
                     cash = 0;
-                    countInGame = players.Count;
+                    players.RemoveAll(p => p.IsDisconnected);
                     continue;
                 }
 
@@ -226,7 +221,6 @@ namespace OpenPoker.GameEngine
                     curCycle = 0;
                     cash = 0;
                     Console.WriteLine("EndGame");
-                    countInGame = players.Count;
                     state = GameState.Lobby;
                 }
             }
@@ -387,20 +381,27 @@ namespace OpenPoker.GameEngine
         private void FindWinner(int cash)
         {
             Dictionary<IPlayer, int> playerStats = new Dictionary<IPlayer, int>();
-
-            for (int i = 0; i < players.Count; i++)
-                if (players[i].bet != -1)
-                    playerStats[players[i]] = CalculateCombination(players[i].cards);
-
-            int max = playerStats.Max(x => x.Value);
-            var winners = playerStats.Where(x => x.Value == max).ToList();
-            ShowCards();
             string res = "";
-            foreach (KeyValuePair<IPlayer, int> kvp in winners)
+            try
             {
-                IPlayer p = kvp.Key;
-                res += String.Format("Player {0} has won {1}$ with a {2}!", p.Name, cash / winners.Count, IntCombToStr(kvp.Value));
+                for (int i = 0; i < players.Count; i++)
+                    if (players[i].bet != -1)
+                        playerStats[players[i]] = CalculateCombination(players[i].cards);
+                int max = playerStats.Max(x => x.Value);
+                var winners = playerStats.Where(x => x.Value == max).ToList();
+                ShowCards();
+                
+                foreach (KeyValuePair<IPlayer, int> kvp in winners)
+                {
+                    IPlayer p = kvp.Key;
+                    res += String.Format("Player {0} has won {1}$ with a {2}!", p.Name, cash / winners.Count, IntCombToStr(kvp.Value));
+                }
             }
+            catch
+            {
+                res = "No players!";
+            }
+            
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
         }
