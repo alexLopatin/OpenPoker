@@ -48,9 +48,9 @@ namespace OpenPoker.GameEngine
         /// Only call on IServer instance
         /// </summary>
         /// <returns></returns>
-        public GameUpdateArgs GetUpdateData()
+        public GameUpdateArgs GetUpdateData(bool showCards = false)
         {
-            return updateComposer.UpdateAll();
+            return updateComposer.UpdateAll(showCards);
         }
         private async void GameCycle()
         {
@@ -215,13 +215,7 @@ namespace OpenPoker.GameEngine
                     FindWinner(cash);
                     state = GameState.Ended;
                     await Task.Delay(5000);
-                    foreach (IPlayer p in players)
-                            if (p.IsDisconnected)
-                            {
-                                players.Remove(p);
-                                break;
-                            }
-                                
+                    players.RemoveAll(p => p.IsDisconnected);    
                     foreach (IPlayer p in players)
                     {
 

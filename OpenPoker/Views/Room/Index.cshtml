@@ -1,15 +1,27 @@
 ﻿@page
     <div class="card" id="table" hidden="hidden">
+        @if (User.IsInRole("admin"))
+        {
+            <div id="adminPanel">
+                <input type="checkbox" onchange="ShowCards(this.checked);" />
+                <p>Show all cards</p>
+            </div>
+        }
         <div class="card-body">
             <p id="endResult"></p>
             @for (int i = 1; i <= 6; i++)
             {
-                <div class="player" id=@("player" + i.ToString())  hidden="hidden">
+                <div class="player" id=@("player" + i.ToString()) hidden="hidden">
+                    @if(User.IsInRole("admin") && i != 4)
+                    {
+                        <button onclick="KickPlayer(@(i - 1));">Kick</button>
+                    }
                     <p style="text-align:center" id="name">Player @i</p>
                     <img src="~/cards/back.png" id="card" />
                     <img src="~/cards/back.png" id="card" />
                     <p style="text-align:center" id="bet">0</p>
                 </div>
+                
             }
             <div class="player" id="deck">
                 <img src="~/cards/back.png" id="card" />

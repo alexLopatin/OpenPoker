@@ -42,6 +42,23 @@ namespace OpenPoker.GameEngine
                 player.bet = -1;
             }
         }
+        public void Kick(int id, string roomId)
+        {
+            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            lock (room.game.players)
+            {
+                var player =room.game.players.Find(p => {
+                        if (p.Id == id)
+                            return true;
+                    return false;
+                });
+                //if (player. != null)
+                //    if (player.GetPlayerBetTask.IsPending)
+                //        player.GetPlayerBetTask.MessageReceived(-1);
+                player.IsDisconnected = true;
+                player.bet = -1;
+            }
+        }
         public int AddNewPlayer(string connectionId, string roomId, string playerName)
         {
             var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));

@@ -88,8 +88,26 @@ connection.on("DoBet", function (minBet) {
 });
 
 connection.on("RedirectToLogin", function () {
-    redirect('account/login')
+    redirect('account/login', window.location.pathname + window.location.search);
 });
+
+function Shift() {
+    if (place <= 3)
+        return 3 - place;
+    else
+        return 9 - place;
+}
+
+ function Modulus (a, b) {
+    // Calculate
+    return ((a % b) + b) % b;
+}
+
+function KickPlayer(id) {
+    connection.invoke("Kick",  Modulus(id - Shift(), 6)).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
 
 function MakeBet() {
     var bet = document.getElementById("betText").textContent;
@@ -108,6 +126,24 @@ function Fold() {
     cards[1].src = "cards/back.png";
     document.getElementById("menu").setAttribute("hidden", "hidden");
 
+}
+
+function ShowCards(isShown) {
+    if (isShown) {
+        connection.invoke("ShowCards").catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+    else {
+        
+        for (var i = 0; i < 6; i++) {
+            if (i == 3)
+                continue;
+            var cards = document.querySelectorAll("#player" + (i + 1) + " #card");
+            cards[0].src = "cards/back.png";
+            cards[1].src = "cards/back.png";
+        }
+    }
 }
 
 function GetImagePath(rank, suit) {
@@ -155,7 +191,7 @@ function RankToString(rank)
     return r;
 }
 
-function redirect(url) {
+function redirect(url, returnUrl) {
     var ua = navigator.userAgent.toLowerCase(),
         isIE = ua.indexOf('msie') !== -1,
         version = parseInt(ua.substr(4, 2), 10);
@@ -170,7 +206,10 @@ function redirect(url) {
 
     // All other browsers can use the standard window.location.href (they don't lose HTTP_REFERER like Internet Explorer 8 & lower does)
     else {
-        window.location.href = url;
+        if (returnUrl != null)
+            window.location.href = url + "?returnUrl=" + returnUrl;
+        else
+            window.location.href = url;
     }
 }
 

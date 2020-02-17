@@ -26,6 +26,7 @@ namespace OpenPoker.Controllers
 
         public IActionResult Index(int page)
         {
+            
             int countOfPages = (int)Math.Ceiling((double)_server.rooms.Count / countOfRoomsOnPage);
             if (page <= 0 || page > Math.Ceiling((double) _server.rooms.Count/countOfRoomsOnPage))
                 return View( new RoomsList( _server.rooms.GetRange(0, countOfRoomsOnPage), countOfPages));

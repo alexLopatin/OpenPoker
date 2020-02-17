@@ -25,7 +25,7 @@ namespace OpenPoker.Hubs
                 Context.Items["roomId"] = roomId;
                 await Groups.AddToGroupAsync(Context.ConnectionId, "/room/" + roomId);
                 await _server.SendSetupData(Clients.Caller, newId);
-                await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId));
+                await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId), false);
             }
             else
                 await _server.Reject(Clients.Caller);
@@ -37,6 +37,20 @@ namespace OpenPoker.Hubs
             string connectionId = Context.ConnectionId;
             await playerManager.SetPlayerBetAsync(connectionId, roomId, Int32.Parse(bet));
         }
+        [Authorize(Roles ="admin")]
+        public async Task ShowCards()
+        {
+            string roomId = Context.Items["roomId"] as string;
+            await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId), true);
+        }
+
+        [Authorize(Roles = "admin")]
+        public async Task Kick(int id)
+        {
+            string roomId = Context.Items["roomId"] as string;
+            playerManager.Kick(id, roomId);
+            await _server.SendUpdateData(Clients.Caller, Int32.Parse(roomId), false);
+        }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             string roomId =  Context.Items["roomId"] as string;
@@ -46,9 +60,10 @@ namespace OpenPoker.Hubs
 
             playerManager.SetPlayerDisconnected(Context.ConnectionId, roomId);
 
-            await _server.SendUpdateData(Clients.Others, Int32.Parse(roomId));
+            await _server.SendUpdateData(Clients.Others, Int32.Parse(roomId), false);
             await base.OnDisconnectedAsync(exception);
         }
+
         public RoomHub(IServer server)
         {
             _server = server;

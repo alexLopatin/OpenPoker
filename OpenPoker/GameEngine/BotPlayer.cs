@@ -46,8 +46,8 @@ namespace OpenPoker.GameEngine
             {
                 int res = nb - bet;
                 bet = nb;
-                
                 await Task.Delay(rand.Next(1000, 2000));
+
                 return res;
             }
             return 0;

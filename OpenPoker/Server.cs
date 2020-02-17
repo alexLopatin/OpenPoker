@@ -13,7 +13,7 @@ namespace OpenPoker
     {
         public List<GameRoom> rooms { get; }
         public void CreateGame(GameRoom room);
-        public Task SendUpdateData(IClientProxy caller, int roomId);
+        public Task SendUpdateData(IClientProxy caller, int roomId, bool showCards);
         public Task Reject(IClientProxy caller);
         public Task SendBetQuery(string connectionId, int minBet);
         public Task SendSetupData(IClientProxy caller, int id);
@@ -48,10 +48,10 @@ namespace OpenPoker
         {
             await caller.SendAsync("RedirectToLogin");
         }
-        public async Task SendUpdateData(IClientProxy caller, int roomId)
+        public async Task SendUpdateData(IClientProxy caller, int roomId, bool showCards = false)
         {
             var room = rooms.Find(p => p.id == roomId);
-            var args = room.game.GetUpdateData();
+            var args = room.game.GetUpdateData(showCards);
             foreach (KeyValuePair<GameEngine.Action, object> kvp in args.ActionArgumentsPairs)
                 await caller.SendAsync(kvp.Key.Name, kvp.Value);
         }
