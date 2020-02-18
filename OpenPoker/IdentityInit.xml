@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Identity>
+  <Roles>
+    <Roles.Role name ="admin"></Roles.Role>
+  </Roles>
+  <Users>
+    <User email="admin@gmail.com" password="123456aA">
+      <User.Role name="admin">
+      </User.Role>
+    </User>
+  </Users>
+</Identity>
+
