@@ -9,6 +9,8 @@ namespace OpenPoker.GameEngine
     public class GameUpdateArgs
     {
         public List<KeyValuePair <Action, object>> ActionArgumentsPairs { get; set; } = new List<KeyValuePair<Action, object>>();
+        public bool isEndGameUpdate { get; set; } = false;
+    
     }
     public class UpdateComposer
     {
@@ -56,6 +58,7 @@ namespace OpenPoker.GameEngine
                     ));
             return args;
         }
+
         public GameUpdateArgs UpdateOnlyOnePlayer(int id, int diff, bool showCards = false)
         {
             string choice = "None";
@@ -84,7 +87,7 @@ namespace OpenPoker.GameEngine
         public GameUpdateArgs EndGameUpdate(string final)
         {
             GameUpdateArgs args = UpdateAll(true);
-
+            args.isEndGameUpdate = true;
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("EndGameUpdate"),

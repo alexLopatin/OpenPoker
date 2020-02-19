@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using OpenPoker.Hubs;
+using OpenPoker.Logging;
 
 namespace OpenPoker.GameEngine
 {
@@ -14,10 +15,20 @@ namespace OpenPoker.GameEngine
         public int id;
         public EventHandler<GameUpdateArgs> OnGameUpdate;
         public EventHandler<GameUpdateArgs> OnGameClose;
+        public GameLogger logger;
         private void TurnHandler(object sender, GameUpdateArgs args)
         {
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, args);
+        }
+        private void LogHandler(object sender, GameUpdateArgs args)
+        {
+            logger.Log(args, new TimeSpan(0, 1, 20));
+            if (args.isEndGameUpdate)
+            {
+                logger.SaveLog(id.ToString() + ".log");
+                logger.Clear();
+            }
         }
         public int GetNewIdPlayer()
         {
@@ -38,6 +49,7 @@ namespace OpenPoker.GameEngine
         }
         public GameRoom(string name, int id, int count = 5, Game game = null)
         {
+            logger = new GameLogger("GameLogs");
             if (game == null)
                 game = new Game();
             Random rand = new Random();
@@ -48,6 +60,7 @@ namespace OpenPoker.GameEngine
             this.id = id;
             game.OnGameUpdate += TurnHandler;
             game.OnGameClose += CloseHandler;
+            game.OnGameLog += LogHandler;
             game.Start();
         }
     }

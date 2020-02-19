@@ -26,12 +26,12 @@
                         </li>
                     </ul>
                 </div>
-                <div style="margin: 5px">
+                <div style="margin: 5px" id="accNavBlock">
                     @if (User.Identity.IsAuthenticated)
                     {
-                        @User.Identity.Name
+                    <p>@User.Identity.Name</p>
                     <form method="post" asp-controller="Account" asp-action="Logout">
-                        <input type="submit" value="Выйти" />
+                        <input type="submit" value="Logout" class="btn btn-light" />
                     </form>
                     }
                     else

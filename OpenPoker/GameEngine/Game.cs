@@ -35,6 +35,7 @@ namespace OpenPoker.GameEngine
             }
         }
         public EventHandler<GameUpdateArgs> OnGameUpdate;
+        public EventHandler<GameUpdateArgs> OnGameLog;
         public EventHandler<GameUpdateArgs> OnGameClose;
         public enum GameState
         {
@@ -109,11 +110,9 @@ namespace OpenPoker.GameEngine
                     minBet = 100;
                     cash += 150;
                     if (OnGameUpdate != null)
-                    {
                         OnGameUpdate.Invoke(this, updateComposer.UpdateAll());
-                    }
-                        
-
+                    if (OnGameLog != null)
+                        OnGameLog.Invoke(this, updateComposer.UpdateAll(true));
                 }
 
                 int i = 0;
@@ -137,7 +136,8 @@ namespace OpenPoker.GameEngine
                             diff = -1;
                         if (OnGameUpdate != null)
                             OnGameUpdate.Invoke(this, updateComposer.UpdateOnlyOnePlayer( players[ (i + curBetting) % players.Count].Id, diff));
-
+                        if (OnGameLog != null)
+                            OnGameLog.Invoke(this, updateComposer.UpdateOnlyOnePlayer(players[(i + curBetting) % players.Count].Id, diff, true));
 
                         if (players.LongCount( p =>p.bet != -1) == 1)
                             break;
@@ -168,6 +168,8 @@ namespace OpenPoker.GameEngine
                     string res = String.Format("Player {0} has won {1}$!", players[i].Name, cash);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
+                    if (OnGameLog != null)
+                        OnGameLog.Invoke(this, updateComposer.EndGameUpdate(res));
                     Console.WriteLine("Player {0} has won {1}$!", players[i].Id, cash);
                     await Task.Delay(5000);
                     foreach (IPlayer p in players)
@@ -190,6 +192,8 @@ namespace OpenPoker.GameEngine
                     await Task.Delay(1000);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.UpdateTable());
+                    if (OnGameLog != null)
+                        OnGameLog.Invoke(this, updateComposer.UpdateTable());
                     ShowCards();
                     curCycle++;
                 }
@@ -199,6 +203,8 @@ namespace OpenPoker.GameEngine
                     await Task.Delay(1000);
                     if (OnGameUpdate != null)
                         OnGameUpdate.Invoke(this, updateComposer.UpdateTable());
+                    if (OnGameLog != null)
+                        OnGameLog.Invoke(this, updateComposer.UpdateTable());
                     ShowCards();
                     curCycle++;
                 }
@@ -401,6 +407,8 @@ namespace OpenPoker.GameEngine
             
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
+            if (OnGameLog != null)
+                OnGameLog.Invoke(this, updateComposer.EndGameUpdate(res));
         }
         private void ShowCards()
         {

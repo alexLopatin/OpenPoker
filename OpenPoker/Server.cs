@@ -116,9 +116,7 @@ namespace OpenPoker
         {
             Configure();
             HubContext = hubContext;
-            for(int i = 1; i <= 49; i++)
-                CreateGame(new GameRoom("Room #" + i.ToString(), i, 6));
-            for (int i = 51; i <= 100; i++)
+            for(int i = 1; i <= 10; i++)
                 CreateGame(new GameRoom("Room #" + i.ToString(), i, 6));
         }
     }

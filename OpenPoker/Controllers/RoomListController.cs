@@ -22,6 +22,8 @@ namespace OpenPoker.Controllers
         {
             var rooms =  _server.rooms.Select(kvp => kvp.Value).ToList();
             int countOfPages = (int)Math.Ceiling((double)_server.rooms.Count / countOfRoomsOnPage);
+            if (_server.rooms.Count <= countOfRoomsOnPage)
+                return View(new RoomsList(rooms, countOfPages));
             if (page <= 0 || page > Math.Ceiling((double)_server.rooms.Count / countOfRoomsOnPage))
                 return View(new RoomsList(rooms.GetRange(0, countOfRoomsOnPage), countOfPages));
             page--;

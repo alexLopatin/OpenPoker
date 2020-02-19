@@ -20,6 +20,10 @@
     <ProjectReference Include="..\ConsolePoker\ConsolePoker.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GameLogs\" />
+  </ItemGroup>
+
 
 
 </Project>

@@ -3,4 +3,9 @@
   <Room.Settings>
     <MaxCount>1000</MaxCount>
   </Room.Settings>
+  <Logger useLogger="true">
+    <Folder>
+      GameLogs
+    </Folder>
+  </Logger>
 </Server.Configuration>
