@@ -21,9 +21,6 @@ namespace OpenPoker.GameEngine
             cancellation = tokenSource.Token;
             updateComposer = new UpdateComposer(this);
             players = new List<IPlayer>();
-            Random rand = new Random();
-            for (int i = 0; i < 5; i++)
-                players.Add(new BotPlayer(i));
         }
         private void PrintState()
         {

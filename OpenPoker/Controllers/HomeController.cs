@@ -16,25 +16,25 @@ namespace OpenPoker.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IServer _server;
+        private MatchMaker matchMaker;
         public HomeController(ILogger<HomeController> logger, IServer server)
         {
             _server = server;
             _logger = logger;
+            matchMaker = new MatchMaker(server);
         }
         
         private const int countOfRoomsOnPage = 30;
 
-        public IActionResult Index(int page)
+        public IActionResult Index()
         {
+            return View();
+        }
+        public IActionResult Play()
+        {
+            int id = matchMaker.CreateOrFindRoom();
             
-            int countOfPages = (int)Math.Ceiling((double)_server.rooms.Count / countOfRoomsOnPage);
-            if (page <= 0 || page > Math.Ceiling((double) _server.rooms.Count/countOfRoomsOnPage))
-                return View( new RoomsList( _server.rooms.GetRange(0, countOfRoomsOnPage), countOfPages));
-            page--;
-            return View( new RoomsList( _server.rooms.GetRange(page * countOfRoomsOnPage,
-                (page + 1)*countOfRoomsOnPage <= _server.rooms.Count ?
-                countOfRoomsOnPage : (_server.rooms.Count - (page) * countOfRoomsOnPage))
-                , countOfPages));
+            return RedirectToAction("Index", "Room", new { roomId = id });
         }
 
         public IActionResult Privacy()

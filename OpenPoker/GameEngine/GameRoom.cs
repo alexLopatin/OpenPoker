@@ -27,15 +27,22 @@ namespace OpenPoker.GameEngine
                     break;
             return i;
         }
+        public int CountOfPlayers()
+        {
+            return game.players.Count(p => !p.IsDisconnected);
+        }
         private void CloseHandler(object sender, GameUpdateArgs args)
         {
             if (OnGameClose != null)
                 OnGameClose.Invoke(this, args);
         }
-        public GameRoom(string name, int id, Game game = null)
+        public GameRoom(string name, int id, int count = 5, Game game = null)
         {
             if (game == null)
                 game = new Game();
+            Random rand = new Random();
+            for (int i = 0; i < count; i++)
+                game.players.Add(new BotPlayer(i));
             this.game = game;
             this.name = name;
             this.id = id;

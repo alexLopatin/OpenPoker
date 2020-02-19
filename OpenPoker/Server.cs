@@ -11,7 +11,7 @@ namespace OpenPoker
 {
     public interface IServer
     {
-        public List<GameRoom> rooms { get; }
+        public Dictionary<int, GameRoom> rooms { get; }
         public void CreateGame(GameRoom room);
         public Task SendUpdateData(IClientProxy caller, int roomId, bool showCards);
         public Task Reject(IClientProxy caller, string reason);
@@ -22,7 +22,7 @@ namespace OpenPoker
     public class Server : IServer
     {
         private int maxCountOfRooms = int.MaxValue;
-        public List<GameRoom> rooms { get; private set; } = new List<GameRoom>();
+        public Dictionary<int, GameRoom> rooms { get; private set; } = new Dictionary<int, GameRoom>();
         private IHubContext<RoomHub> HubContext { get; set; }
         public void SendPlayerState(object sender, GameUpdateArgs args)
         {
@@ -42,7 +42,7 @@ namespace OpenPoker
         public void GameRoomClose(object sender, GameUpdateArgs args)
         {
             lock (rooms)
-                rooms.Remove(sender as GameRoom);
+                rooms.Remove((sender as GameRoom).id);
         }
         public async Task RequireLogin(IClientProxy caller)
         {
@@ -50,7 +50,7 @@ namespace OpenPoker
         }
         public async Task SendUpdateData(IClientProxy caller, int roomId, bool showCards = false)
         {
-            var room = rooms.Find(p => p.id == roomId);
+            var room = rooms[roomId];
             var args = room.game.GetUpdateData(showCards);
 
             foreach (KeyValuePair<GameEngine.Action, object> kvp in args.ActionArgumentsPairs)
@@ -72,7 +72,7 @@ namespace OpenPoker
         {
             if (rooms.Count < maxCountOfRooms)
             {
-                rooms.Add(room);
+                rooms[room.id] = room;
                 room.OnGameUpdate += SendPlayerState;
                 room.OnGameClose += GameRoomClose;
             }
@@ -116,8 +116,10 @@ namespace OpenPoker
         {
             Configure();
             HubContext = hubContext;
-            for(int i = 1; i <= 100; i++)
-                CreateGame(new GameRoom("Room #" + i.ToString(), i));
+            for(int i = 1; i <= 49; i++)
+                CreateGame(new GameRoom("Room #" + i.ToString(), i, 6));
+            for (int i = 51; i <= 100; i++)
+                CreateGame(new GameRoom("Room #" + i.ToString(), i, 6));
         }
     }
 }

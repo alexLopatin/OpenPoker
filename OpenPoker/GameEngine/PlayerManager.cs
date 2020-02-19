@@ -10,7 +10,7 @@ namespace OpenPoker.GameEngine
         private readonly IServer _server;
         public void SetPlayerBet(string connectionId, string roomId, int bet)
         {
-            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            var room = _server.rooms[Int32.Parse(roomId)];
             var player = (NetworkPlayer)room.game.players.Find(p => {
                 if (p is NetworkPlayer)
                     if (((NetworkPlayer)p).ConnectionId == connectionId)
@@ -26,7 +26,7 @@ namespace OpenPoker.GameEngine
         }
         public void SetPlayerDisconnected(string connectionId, string roomId)
         {
-            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            var room = _server.rooms[Int32.Parse(roomId)];
             lock (room.game.players)
             {
                 var player = (NetworkPlayer)room.game.players.Find(p => {
@@ -44,7 +44,7 @@ namespace OpenPoker.GameEngine
         }
         public string Kick(int id, string roomId)
         {
-            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            var room = _server.rooms[Int32.Parse(roomId)];
             lock (room.game.players)
             {
                 var player =room.game.players.Find(p => {
@@ -65,7 +65,7 @@ namespace OpenPoker.GameEngine
         }
         public int AddNewPlayer(string connectionId, string roomId, string playerName)
         {
-            var room = _server.rooms.Find(p => p.id == Int32.Parse(roomId));
+            var room = _server.rooms[Int32.Parse(roomId)];
             var player = room.game.players.Find(p =>
             {
                 if (p.IsDisconnected)
