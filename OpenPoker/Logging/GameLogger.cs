@@ -11,7 +11,7 @@ namespace OpenPoker.Logging
 {
     public struct TimeArguments
     {
-        public TimeSpan Time { get; set; }
+        public long Time { get; set; }
         public object Argument { get; set; }
     }
     public class GameLogger
@@ -31,7 +31,7 @@ namespace OpenPoker.Logging
                 stopWatch.Start();
             foreach (var item in args.ActionArgumentsPairs)
                 ActionTimeLogList.Add(new KeyValuePair<GameEngine.Action, TimeArguments>(
-                    item.Key, new TimeArguments() { Argument = item.Value, Time = stopWatch.Elapsed}
+                    item.Key, new TimeArguments() { Argument = item.Value, Time = (long)stopWatch.Elapsed.TotalMilliseconds}
                     ));
         }
 

@@ -60,7 +60,7 @@ namespace OpenPoker
                     await HubContext.Clients.Client(kvp.Key.ConnectionId).SendAsync(kvp.Key.Name, kvp.Value);
                 }
                 else
-                    await HubContext.Clients.Group("/room/" + room.id.ToString())
+                    await caller
                         .SendAsync(kvp.Key.Name, kvp.Value);
             }
         }

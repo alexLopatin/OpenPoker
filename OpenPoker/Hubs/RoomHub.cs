@@ -54,8 +54,7 @@ namespace OpenPoker.Hubs
                 await Groups.RemoveFromGroupAsync(connId, "/room/" + roomId);
                 await _server.Reject(Clients.Client(connId), "You've been kicked");
             }
-                
-            await _server.SendUpdateData(Clients.All, Int32.Parse(roomId), false);
+            await _server.SendUpdateData(Clients.Group("/room/" + roomId), Int32.Parse(roomId), false);
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
@@ -66,7 +65,7 @@ namespace OpenPoker.Hubs
 
             playerManager.SetPlayerDisconnected(Context.ConnectionId, roomId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "/room/" + roomId);
-            await _server.SendUpdateData(Clients.Others, Int32.Parse(roomId), false);
+            await _server.SendUpdateData(Clients.Group("/room/" + roomId), Int32.Parse(roomId), false);
             await base.OnDisconnectedAsync(exception);
         }
 
