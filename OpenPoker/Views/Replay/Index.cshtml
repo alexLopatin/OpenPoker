@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+@using OpenPoker.Logging
+@model List<KeyValuePair<OpenPoker.GameEngine.Action, TimeArguments>>
+
+
+
+<h1>Index</h1>
+
+@foreach(var item in Model)
+{
+    <p>@(item.Key.Name + "=======" + item.Value.Time.ToString())</p>
+}
+

@@ -22,5 +22,8 @@ namespace OpenPoker.GameEngine
             Name = name;
             ConnectionId = connectionId;
         }
+        public Action()
+        {
+        }
     }
 }
