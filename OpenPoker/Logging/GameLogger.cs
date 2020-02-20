@@ -37,7 +37,11 @@ namespace OpenPoker.Logging
 
         public async Task SaveLog(string name)
         {
-            string jsonText = JsonSerializer.Serialize(ActionTimeLogList);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            string jsonText = JsonSerializer.Serialize(ActionTimeLogList, options);
             await File.WriteAllTextAsync(Folder + "/" + name, jsonText);
             stopWatch.Reset();
         }

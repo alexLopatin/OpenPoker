@@ -10,7 +10,6 @@ namespace OpenPoker.GameEngine
     {
         public List<KeyValuePair <Action, object>> ActionArgumentsPairs { get; set; } = new List<KeyValuePair<Action, object>>();
         public bool isEndGameUpdate { get; set; } = false;
-    
     }
     public class UpdateComposer
     {
@@ -34,7 +33,7 @@ namespace OpenPoker.GameEngine
                 args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("UpdatePlayer"), 
-                    new PlayerUpdateModel(game.players[i].Id, cards, game.players[i].bet, game.players[i].Name,
+                    new PlayerUpdateModel(game.players[i].Id, new List<Card>(cards), game.players[i].bet, game.players[i].Name,
                     "None", game.players[i].IsDisconnected)
                     ));
 
@@ -46,7 +45,7 @@ namespace OpenPoker.GameEngine
                     args.ActionArgumentsPairs.Add(
                         new KeyValuePair<Action, object>(
                             new Action("UpdatePlayer", netPlayer.ConnectionId),
-                        new PlayerUpdateModel(netPlayer.Id, netPlayer.cards, netPlayer.bet, game.players[i].Name,
+                        new PlayerUpdateModel(netPlayer.Id, new List<Card>(netPlayer.cards), netPlayer.bet, game.players[i].Name,
                         "None", netPlayer.IsDisconnected)
                         ));
                 }
@@ -54,7 +53,7 @@ namespace OpenPoker.GameEngine
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("UpdateTable"),
-                    new TableUpdateModel(game.cards)
+                    new TableUpdateModel(new List<Card>(game.cards))
                     ));
             return args;
         }
@@ -74,7 +73,7 @@ namespace OpenPoker.GameEngine
             IPlayer p = game.players.Find(p => p.Id == id);
             List<Card> cards;
             if (showCards)
-                cards = p.cards;
+                cards = new List<Card>(p.cards);
             else
                 cards = new List<Card>();
             args.ActionArgumentsPairs.Add(
@@ -112,7 +111,7 @@ namespace OpenPoker.GameEngine
             args.ActionArgumentsPairs.Add(
                     new KeyValuePair<Action, object>(
                         new Action("UpdateTable"),
-                    new TableUpdateModel(game.cards)
+                    new TableUpdateModel( new List<Card>( game.cards))
                     ));
             return args;
         }

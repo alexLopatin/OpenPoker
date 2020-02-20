@@ -15,8 +15,9 @@ namespace OpenPoker.Controllers
             LogDeserialize log = new LogDeserialize("GameLogs/" + id.ToString() + ".log");
             if(log.Exists())
             {
-                var deserialized = log.Deserialize<List<KeyValuePair<GameEngine.Action, TimeArguments>>>();
-                return View(deserialized);
+                //var deserialized = log.Deserialize<List<KeyValuePair<GameEngine.Action, TimeArguments>>>();
+                var rawJson = log.GetRawData();
+                return View((object)rawJson);
             }
             return View();
         }
