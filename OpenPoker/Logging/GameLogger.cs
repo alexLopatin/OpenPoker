@@ -25,7 +25,7 @@ namespace OpenPoker.Logging
             Folder = folder;
             
         }
-        public void Log(GameUpdateArgs args, TimeSpan time)
+        public void Log(GameUpdateArgs args)
         {
             if (!stopWatch.IsRunning)
                 stopWatch.Start();

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using OpenPoker.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using OpenPoker.Models;
+using OpenPoker.GameEngine;
 
 namespace OpenPoker
 {
@@ -32,9 +33,10 @@ namespace OpenPoker
             services.AddSignalR();
             services.AddSingleton<IServer, Server>();
             services.AddDbContext<ApplicationContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationContext>();
+            services.AddTransient<MatchMaker>();
             
 
         }

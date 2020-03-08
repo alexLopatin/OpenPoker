@@ -6,13 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using OpenPoker.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using OpenPoker.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace OpenPoker
 {
     public interface IServer
     {
         public Dictionary<int, GameRoom> rooms { get; }
-        public void CreateGame(GameRoom room);
+        public void CreateGame(string name, int id, int count);
         public Task SendUpdateData(IClientProxy caller, int roomId, bool showCards);
         public Task Reject(IClientProxy caller, string reason);
         public Task SendBetQuery(string connectionId, int minBet);
@@ -68,13 +73,22 @@ namespace OpenPoker
         {
             await caller.SendAsync("Reject", reason);
         }
-        public void CreateGame(GameRoom room)
+        public void SaveGame(object sender, GameUpdateArgs args)
         {
+            var room = sender as GameRoom;
+            Match match = new Match() { Id = 0, Winner = room.game.players[0].Name, cash = room.game.players[0].bet, Date = DateTime.Now };
+            db.Add(match);
+            db.SaveChangesAsync();
+        }
+        public void CreateGame(string name, int id, int count)
+        {
+            var room = new GameRoom(name, id,count);
             if (rooms.Count < maxCountOfRooms)
             {
                 rooms[room.id] = room;
                 room.OnGameUpdate += SendPlayerState;
                 room.OnGameClose += GameRoomClose;
+                room.OnGameEnd += SaveGame;
             }
             //else
             //    throw new Exception("Count of rooms reached its maximum");
@@ -111,13 +125,16 @@ namespace OpenPoker
                 }
             }
         }
-
-        public Server(IHubContext<RoomHub> hubContext)
+        private readonly ApplicationContext db;
+        public Server(IHubContext<RoomHub> hubContext, ApplicationContext applicationContext)
         {
             Configure();
+            db = applicationContext;
             HubContext = hubContext;
-            for(int i = 1; i <= 10; i++)
-                CreateGame(new GameRoom("Room #" + i.ToString(), i, 6));
+            for (int i = 1; i <= 10; i++)
+                //CreateGame(ActivatorUtilities.CreateInstance<GameRoom>(provider, "Room #" + i.ToString(), i, 6));
+                CreateGame("Room #" + i.ToString(), i, 5);
+
         }
     }
 }

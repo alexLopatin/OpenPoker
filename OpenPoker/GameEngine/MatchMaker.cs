@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OpenPoker.Infrastructure;
 
 namespace OpenPoker.GameEngine
 {
@@ -26,7 +27,7 @@ namespace OpenPoker.GameEngine
                 }
                 if (lastNull == -1)
                     lastNull = _server.rooms.Max(kvp => kvp.Key) + 1;
-                _server.CreateGame(new GameRoom("Room #" + lastNull.ToString(), lastNull));
+                _server.CreateGame("Room #" + lastNull.ToString(), lastNull, 1);
                 return lastNull;
             }
         }

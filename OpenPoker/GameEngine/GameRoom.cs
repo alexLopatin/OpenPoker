@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using OpenPoker.Hubs;
 using OpenPoker.Logging;
+using OpenPoker.Infrastructure;
+using OpenPoker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace OpenPoker.GameEngine
 {
@@ -15,6 +16,7 @@ namespace OpenPoker.GameEngine
         public int id;
         public EventHandler<GameUpdateArgs> OnGameUpdate;
         public EventHandler<GameUpdateArgs> OnGameClose;
+        public EventHandler<GameUpdateArgs> OnGameEnd;
         public GameLogger logger;
         private void TurnHandler(object sender, GameUpdateArgs args)
         {
@@ -23,10 +25,11 @@ namespace OpenPoker.GameEngine
         }
         private void LogHandler(object sender, GameUpdateArgs args)
         {
-            logger.Log(args, new TimeSpan(0, 1, 20));
+            logger.Log(args);
             if (args.isEndGameUpdate)
             {
-                logger.SaveLog(id.ToString() + ".log");
+                if (OnGameEnd != null)
+                    OnGameEnd.Invoke(this, args);
                 logger.Clear();
             }
         }
@@ -47,8 +50,10 @@ namespace OpenPoker.GameEngine
             if (OnGameClose != null)
                 OnGameClose.Invoke(this, args);
         }
-        public GameRoom(string name, int id, int count = 5, Game game = null)
+
+        public GameRoom(string name, int id, int count)
         {
+            Game game = null;
             logger = new GameLogger("GameLogs");
             if (game == null)
                 game = new Game();

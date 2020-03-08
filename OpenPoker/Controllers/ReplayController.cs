@@ -5,13 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using OpenPoker.Logging;
 using OpenPoker.GameEngine;
+using OpenPoker.Infrastructure;
 
 namespace OpenPoker.Controllers
 {
     public class ReplayController : Controller
     {
+        ApplicationContext db;
+        public ReplayController(ApplicationContext applicationContext)
+        {
+            db = applicationContext;
+        }
         public IActionResult Index(int id)
         {
+            var res = from Matches in db.Matches
+                      where Matches.Id == id
+                      select Matches;
+
+
             LogDeserialize log = new LogDeserialize("GameLogs/" + id.ToString() + ".log");
             if(log.Exists())
             {

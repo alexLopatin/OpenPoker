@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using OpenPoker.GameEngine;
+using OpenPoker.Models;
 
 namespace OpenPoker.Hubs
 {
@@ -12,6 +14,7 @@ namespace OpenPoker.Hubs
     {
         private readonly IServer _server;
         private readonly PlayerManager playerManager;
+        private readonly UserManager<User> _userManager;
         public async Task JoinRoom(string roomId)
         {
             if(!Context.User.Identity.IsAuthenticated)
@@ -19,7 +22,8 @@ namespace OpenPoker.Hubs
                 await _server.RequireLogin(Clients.Caller);
                 return;
             }
-            int newId = playerManager.AddNewPlayer(Context.ConnectionId, roomId, Context.User.Identity.Name);
+            var user = await _userManager.GetUserAsync(Context.User);
+            int newId = playerManager.AddNewPlayer(Context.ConnectionId, roomId, user);
             if (newId >= 0)
             {
                 Context.Items["roomId"] = roomId;
@@ -69,9 +73,10 @@ namespace OpenPoker.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public RoomHub(IServer server)
+        public RoomHub(IServer server, UserManager<User> userManager)
         {
             _server = server;
+            _userManager = userManager;
             playerManager = new PlayerManager(_server);
         }
     }

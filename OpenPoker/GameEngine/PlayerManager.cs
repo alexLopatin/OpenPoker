@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenPoker.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,7 +64,7 @@ namespace OpenPoker.GameEngine
                     return null;
             }
         }
-        public int AddNewPlayer(string connectionId, string roomId, string playerName)
+        public int AddNewPlayer(string connectionId, string roomId, User user)
         {
             var room = _server.rooms[Int32.Parse(roomId)];
             var player = room.game.players.Find(p =>
@@ -87,7 +88,7 @@ namespace OpenPoker.GameEngine
                         room.game.players.Remove(player);
                         
                     }
-                    IPlayer p = new NetworkPlayer(_server, connectionId, newId, playerName);
+                    IPlayer p = new NetworkPlayer(_server, connectionId, newId, user);
                     if (room.game.state == Game.GameState.Lobby)
                         p.bet = 0;
                     else

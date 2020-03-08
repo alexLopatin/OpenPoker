@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using OpenPoker.Models;
 
 namespace OpenPoker.GameEngine
 {
     public class NetworkPlayer : IPlayer
     {
-        public string Name { get; private set; }
+        public string Name { get
+            {
+                return User.UserName;
+            } }
         public int Id { get; private set; }
         private readonly IServer _server;
-        public NetworkPlayer(IServer server, string connectionId, int id, string name)
+        public User User { get; set; }
+        public NetworkPlayer(IServer server, string connectionId, int id, User user)
         {
             _server = server;
             ConnectionId = connectionId;
             Id = id;
-            Name = name;
+            User = user;
         }
         public string ConnectionId {get;set;}
         public bool IsDisconnected { get; set; } = false;
