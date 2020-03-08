@@ -23,6 +23,17 @@ namespace OpenPoker.Infrastructure
             modelBuilder.Entity<Match>()
             .Property(f => f.Id)
             .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<MatchUsers>()
+                .HasKey(mu => new { mu.MatchId, mu.UserId });
+            modelBuilder.Entity<MatchUsers>()
+                    .HasOne(mu => mu.Match)
+                    .WithMany(m => m.Users)
+                    .HasForeignKey(mu => mu.MatchId);
+            modelBuilder.Entity<MatchUsers>()
+                    .HasOne(mu => mu.User)
+                    .WithMany(u => u.matches)
+                    .HasForeignKey(mu => mu.UserId);
         }
     }
 }

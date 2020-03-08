@@ -9,5 +9,7 @@ namespace OpenPoker.Models
     public class User : IdentityUser
     {
         public int YearBorn { get; set; }
+        public ICollection<MatchUsers> matches { get; set; }
+        
     }
 }

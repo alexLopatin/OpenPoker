@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewData["Title"] = "Profile";
+}
+@using OpenPoker.Models
+@model ProfileViewModel
+
+<h1>@Model.User.UserName's profile</h1>
+<h2>Match history</h2>
+@foreach (Match match in Model.Matches)
+{
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <p>Match id: @match.Id</p>
+            <p>Match date: @match.Date</p>
+            <p>Winner: @match.Winner</p>
+            <p>Cash: @match.cash</p>
+            <button type="button" class="btn btn-info" onclick="location.href='@Url.RouteUrl(new { controller = "Replay", action = "Index", id = match.Id })'">
+            See replay
+            </button>
+        </div>
+    </div>
+    }
+

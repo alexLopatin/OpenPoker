@@ -18,10 +18,7 @@ namespace OpenPoker.Controllers
         }
         public IActionResult Index(int id)
         {
-            var res = from Matches in db.Matches
-                      where Matches.Id == id
-                      select Matches;
-
+            
 
             LogDeserialize log = new LogDeserialize("GameLogs/" + id.ToString() + ".log");
             if(log.Exists())

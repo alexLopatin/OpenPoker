@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OpenPoker.Infrastructure;
 using OpenPoker.Models;
 
 namespace OpenPoker.Controllers
@@ -12,13 +14,26 @@ namespace OpenPoker.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly ApplicationContext db;
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ApplicationContext applicationContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            db = applicationContext;
         }
+        public IActionResult Profile(string Id)
+        {
+            var user = (from Users in db.Users
+                      where Users.UserName == Id
+                      select Users).First();
+            var matches = db.Matches
+                .Include(m => m.Users )
+                .ThenInclude(mu => mu.Match)
+                .Where(x => x.Users.Any(c => c.UserId == user.Id))
+                .ToList();
 
+            return View(new ProfileViewModel() { User = user, Matches = matches });
+        }
         [HttpGet]
         public IActionResult Register()
         {

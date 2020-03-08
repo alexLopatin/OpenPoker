@@ -76,7 +76,13 @@ namespace OpenPoker
         public void SaveGame(object sender, GameUpdateArgs args)
         {
             var room = sender as GameRoom;
-            Match match = new Match() { Id = 0, Winner = room.game.players[0].Name, cash = room.game.players[0].bet, Date = DateTime.Now };
+            List<User> users = new List<User>();
+            foreach (IPlayer p in room.game.players)
+                if(p is NetworkPlayer)
+                    users.Add((p as NetworkPlayer).User);
+            Match match = new Match() { Id = 0, Winner = room.game.players[0].Name, cash = room.game.players[0].bet, Date = DateTime.Now};
+            foreach(var user in users)
+                match.Users.Add(new MatchUsers() { MatchId = match.Id, UserId = user.Id });
             db.Add(match);
             db.SaveChangesAsync();
         }

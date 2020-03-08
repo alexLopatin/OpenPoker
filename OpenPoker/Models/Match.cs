@@ -11,7 +11,7 @@ namespace OpenPoker.Models
     {
         [Key]
         public int Id { get; set; }
-        //public List<User> Players { get; set; }
+        public ICollection<MatchUsers> Users { get; set; } = new List<MatchUsers>();
         public int cash { get; set; }
         public string Winner { get; set; }
         public DateTime Date { get; set; }
