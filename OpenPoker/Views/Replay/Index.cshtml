@@ -6,8 +6,11 @@
 @model string
 
 
-
-<h1>Index</h1>
+@if (Model == null)
+{
+    <h1>@("There's no replay of this game.")</h1>
+    <h4>Sorry</h4>
+}
 
 <div class="card" id="table" hidden="hidden">
     <div class="card-body">

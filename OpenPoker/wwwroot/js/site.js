@@ -21,8 +21,8 @@ function EndGameUpdate(args) {
         endText.textContent = "";
         for (var i = 0; i < 6; i++) {
             var cards = document.querySelectorAll("#player" + (i + 1) + " #card");
-            cards[0].src = "cards/back.png";
-            cards[1].src = "cards/back.png";
+            cards[0].src = "/cards/back.png";
+            cards[1].src = "/cards/back.png";
         }
     }, 4000);
     document.getElementById("table").removeAttribute("hidden");
@@ -74,7 +74,7 @@ function UpdatePlayer(args) {
 }
 
 function GetImagePath(rank, suit) {
-    return "cards/" + RankToString(rank) + "_of_" + SuitToString(suit) + ".png";
+    return "/cards/" + RankToString(rank) + "_of_" + SuitToString(suit) + ".png";
 }
 
 function SuitToString(suit) {

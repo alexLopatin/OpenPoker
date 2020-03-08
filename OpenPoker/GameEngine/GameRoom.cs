@@ -27,11 +27,8 @@ namespace OpenPoker.GameEngine
         {
             logger.Log(args);
             if (args.isEndGameUpdate)
-            {
                 if (OnGameEnd != null)
                     OnGameEnd.Invoke(this, args);
-                logger.Clear();
-            }
         }
         public int GetNewIdPlayer()
         {

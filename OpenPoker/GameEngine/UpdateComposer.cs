@@ -94,6 +94,20 @@ namespace OpenPoker.GameEngine
                     ));
             return args;
         }
+        public GameUpdateArgs EndGameUpdate(string final, IPlayer Winner, int cash)
+        {
+            GameUpdateArgs args = UpdateAll(true);
+            args.isEndGameUpdate = true;
+            string WinnerId = "BOT";
+            if (Winner is NetworkPlayer)
+                WinnerId = ((NetworkPlayer)Winner).User.Id;
+            args.ActionArgumentsPairs.Add(
+                    new KeyValuePair<Action, object>(
+                        new Action("EndGameUpdate"),
+                    new EndGameUpdateModel(final, WinnerId, cash)
+                    ));
+            return args;
+        }
         public GameUpdateArgs GameClose(string reason)
         {
             GameUpdateArgs args = new GameUpdateArgs();

@@ -6,6 +6,8 @@
 @model ProfileViewModel
 
 <h1>@Model.User.UserName's profile</h1>
+<p>Year born: @Model.User.YearBorn</p>
+<p>Matches played: @Model.Matches.Count</p>
 <h2>Match history</h2>
 @foreach (Match match in Model.Matches)
 {

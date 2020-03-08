@@ -85,6 +85,8 @@ namespace OpenPoker.GameEngine
                     deck.Shuffle();
                     foreach (IPlayer p in players)
                     {
+                        if (p is NetworkPlayer)
+                            ((NetworkPlayer)p).IsPlaying = true;
                         p.cards.Clear();
                         p.cards.Add(deck.Pop());
                         p.cards.Add(deck.Pop());
@@ -385,13 +387,14 @@ namespace OpenPoker.GameEngine
         {
             Dictionary<IPlayer, int> playerStats = new Dictionary<IPlayer, int>();
             string res = "";
+            List<KeyValuePair<IPlayer, int>> winners = new List<KeyValuePair<IPlayer, int>>();
             try
             {
                 for (int i = 0; i < players.Count; i++)
                     if (players[i].bet != -1)
                         playerStats[players[i]] = CalculateCombination(players[i].cards);
                 int max = playerStats.Max(x => x.Value);
-                var winners = playerStats.Where(x => x.Value == max).ToList();
+                winners = playerStats.Where(x => x.Value == max).ToList();
                 ShowCards();
                 
                 foreach (KeyValuePair<IPlayer, int> kvp in winners)
@@ -408,7 +411,7 @@ namespace OpenPoker.GameEngine
             if (OnGameUpdate != null)
                 OnGameUpdate.Invoke(this, updateComposer.EndGameUpdate(res));
             if (OnGameLog != null)
-                OnGameLog.Invoke(this, updateComposer.EndGameUpdate(res));
+                OnGameLog.Invoke(this, updateComposer.EndGameUpdate(res, winners[0].Key, cash));
         }
         private void ShowCards()
         {

@@ -18,8 +18,6 @@ namespace OpenPoker.Controllers
         }
         public IActionResult Index(int id)
         {
-            
-
             LogDeserialize log = new LogDeserialize("GameLogs/" + id.ToString() + ".log");
             if(log.Exists())
             {

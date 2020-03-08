@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenPoker.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using OpenPoker.Models.Update;
 
 namespace OpenPoker
 {
@@ -78,13 +79,22 @@ namespace OpenPoker
             var room = sender as GameRoom;
             List<User> users = new List<User>();
             foreach (IPlayer p in room.game.players)
-                if(p is NetworkPlayer)
+                if(p is NetworkPlayer && ((NetworkPlayer)p).IsPlaying)
                     users.Add((p as NetworkPlayer).User);
-            Match match = new Match() { Id = 0, Winner = room.game.players[0].Name, cash = room.game.players[0].bet, Date = DateTime.Now};
+            var model = ((EndGameUpdateModel)(args.ActionArgumentsPairs.Find(x => x.Value is EndGameUpdateModel).Value));
+            Match match = new Match() { 
+                Id = 0, 
+                Winner = model.WinnerId,
+                cash = room.game.players[0].bet, Date = DateTime.Now};
+            
             foreach(var user in users)
                 match.Users.Add(new MatchUsers() { MatchId = match.Id, UserId = user.Id });
             db.Add(match);
-            db.SaveChangesAsync();
+            //room.logger.SaveLog(match.Id.ToString() + ".log")
+            //    .ContinueWith(t => db.SaveChangesAsync());
+            db.SaveChanges();
+            room.logger.SaveLog(match.Id.ToString() + ".log");
+            room.logger.Clear();
         }
         public void CreateGame(string name, int id, int count)
         {

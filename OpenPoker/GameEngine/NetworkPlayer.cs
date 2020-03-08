@@ -25,6 +25,7 @@ namespace OpenPoker.GameEngine
         }
         public string ConnectionId {get;set;}
         public bool IsDisconnected { get; set; } = false;
+        public bool IsPlaying { get; set; } = false;
         public List<Card> cards { get; set; } = new List<Card>();
         public int bet { get; set; } = 0;
         public RequestResponseTask<int> GetPlayerBetTask;

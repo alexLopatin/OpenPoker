@@ -23,9 +23,10 @@ namespace OpenPoker.Controllers
         }
         public IActionResult Profile(string Id)
         {
-            var user = (from Users in db.Users
-                      where Users.UserName == Id
-                      select Users).First();
+            var query = from Users in db.Users
+                        where Users.UserName == Id
+                        select Users;
+            var user = query.First();
             var matches = db.Matches
                 .Include(m => m.Users )
                 .ThenInclude(mu => mu.Match)
