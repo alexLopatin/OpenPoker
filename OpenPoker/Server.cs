@@ -89,10 +89,11 @@ namespace OpenPoker
             
             foreach(var user in users)
                 match.Users.Add(new MatchUsers() { MatchId = match.Id, UserId = user.Id });
-            db.Add(match);
-            //room.logger.SaveLog(match.Id.ToString() + ".log")
-            //    .ContinueWith(t => db.SaveChangesAsync());
-            db.SaveChanges();
+            lock(db)
+            {
+                db.Add(match);
+                db.SaveChanges();
+            }
             room.logger.SaveLog(match.Id.ToString() + ".log");
             room.logger.Clear();
         }
